@@ -1,0 +1,53 @@
+import logging
+import os
+import pandas as pd
+
+"""
+Downloads crypto data from Kaggle with hourly granularity
+"""
+
+
+class CryptoDataset:
+    def __init__(self, start_date: str, end_date: str, ticker_list: list, output_path: str = '../resources'):
+        self.start_date = start_date
+        self.end_date = end_date
+        self.ticker_list = ticker_list
+        self.output_path = f"{output_path}/crypto"
+
+    def download_data(self):
+        try:
+            import kaggle
+        except OSError as e:
+            logging.error("Your credentials are not configured. You should follow the steps on this website."
+                          "https://python.plainenglish.io/how-to-use-the-kaggle-api-in-python-4d4c812c39c7")
+            logging.error(e)
+
+        kaggle.api.authenticate()
+        kaggle.api.dataset_download_files('tencars/392-crypto-currency-pairs-at-minute-resolution',
+                                          path=self.output_path,
+                                          unzip=True)
+
+        # Removing the unnecessary files
+        for file in os.listdir(self.output_path):
+            # If the file is not a comparison within crypto and usd, we discard it
+            if not file.endswith("usd.csv"):
+                os.remove(self.output_path)
+
+    def load(self):
+        df = pd.DataFrame()
+        for ticker in self.ticker_list:
+            try:
+                temp_df = pd.read_csv(f"{self.output_path}/{ticker.lower()}usd.csv")
+                temp_df["ticker"] = ticker.lower()
+                df = df.append(temp_df)
+            except FileNotFoundError as e:
+                logging.error(f"Ticker [{ticker}] does not exist or is not downloaded. If it's the first time you call"
+                              f" this method, make sure to call download_data first.")
+                raise e
+
+        # parsing to datetime and filtering by dates
+        df['datetime'] = pd.to_datetime(df['time'] / 1000, unit='s')
+        df = df[(df['datetime'] > self.start_date) & (df['datetime'] < self.end_date)]
+
+        df.drop('time', axis=1, inplace=True)
+        return df
