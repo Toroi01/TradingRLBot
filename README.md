@@ -17,7 +17,7 @@ df = dataset.load()
 
 Stocks:
 ```
-dataset = YahooDataset('2021-05-01', '2021-05-04', ['BTC', 'ETH'])
+dataset = YahooDataset('2021-05-01', '2021-05-04', ['AAPL', 'MSFT'])
 df = dataset.load()
 ```
 
@@ -32,7 +32,7 @@ df = dataset.load()
 
 Stocks:
 ```
-dataset = YahooDataset('2021-05-01', '2021-05-04', ['BTC', 'ETH'])
+dataset = YahooDataset('2021-05-01', '2021-05-04', ['AAPL', 'MSFT'])
 dataset.download_data()
 df = dataset.load()
 ```
