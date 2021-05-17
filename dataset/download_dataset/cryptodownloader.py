@@ -8,18 +8,18 @@ Downloads crypto data from Kaggle with hourly granularity
 
 
 class CryptoDownloader:
-    def __init__(self, start_date: str, end_date: str, ticker_list: list, output_path: str = '../dataset/crypto_dataset'):
+    def __init__(self, start_date: str, end_date: str, ticker_list: list, output_path: str = './dataset/crypto_dataset'):
         self.start_date = start_date
         self.end_date = end_date
         self.ticker_list = ticker_list
-        self.output_path = f"{output_path}/crypto"
+        self.output_path = f"{output_path}"
 
     def download_data(self):
         try:
             import kaggle
         except OSError as e:
             logging.error("Your credentials are not configured. You should follow the steps on this website."
-                          "https://python.plainenglish.io/how-to-use-the-kaggle-api-in-python-4d4c812c39c7")
+                          "https://github.com/Kaggle/kaggle-api/issues/15")
             logging.error(e)
 
         kaggle.api.authenticate()
@@ -28,10 +28,10 @@ class CryptoDownloader:
                                           unzip=True)
 
         # Removing the unnecessary files
-        for file in os.listdir(self.output_path):
-            # If the file is not a comparison within crypto and usd, we discard it
-            if not file.endswith("usd.csv"):
-                os.remove(self.output_path)
+        # for file in os.listdir(self.output_path):
+        #     # If the file is not a comparison within crypto and usd, we discard it
+        #     if not file.endswith("usd.csv"):
+        #         os.remove(self.output_path)
 
     def load(self):
         df = pd.DataFrame()
