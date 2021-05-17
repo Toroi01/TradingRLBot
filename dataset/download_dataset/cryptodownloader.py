@@ -7,8 +7,8 @@ Downloads crypto data from Kaggle with hourly granularity
 """
 
 
-class CryptoDataset:
-    def __init__(self, start_date: str, end_date: str, ticker_list: list, output_path: str = '../resources'):
+class CryptoDownloader:
+    def __init__(self, start_date: str, end_date: str, ticker_list: list, output_path: str = '../dataset/crypto_dataset'):
         self.start_date = start_date
         self.end_date = end_date
         self.ticker_list = ticker_list
