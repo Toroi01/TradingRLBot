@@ -6,7 +6,6 @@ import pandas as pd
 Downloads crypto data from Kaggle with hourly granularity
 """
 
-
 class CryptoDownloader:
     def __init__(self, start_date: str, end_date: str, ticker_list: list, output_path: str = './dataset/crypto_dataset'):
         self.start_date = start_date
