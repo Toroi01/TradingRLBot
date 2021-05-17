@@ -1,7 +1,8 @@
 .idea/
 venv/
 dataset/crypto_dataset/*
-
+.ipynb_checkpoints/
+.vscode/
 # To keep the empty folders
 !dataset/crypto_dataset/.gitkeep
 
