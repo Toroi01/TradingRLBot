@@ -27,10 +27,10 @@ class CryptoDownloader:
                                           unzip=True)
 
         # Removing the unnecessary files
-        # for file in os.listdir(self.output_path):
-        #     # If the file is not a comparison within crypto and usd, we discard it
-        #     if not file.endswith("usd.csv"):
-        #         os.remove(self.output_path)
+        for file in os.listdir(self.output_path):
+            # If the file is not a comparison within crypto and usd, we discard it
+            if not file.endswith("usd.csv"):
+                os.remove(self.output_path+'/'+file)
 
     def load(self):
         df = pd.DataFrame()
@@ -39,14 +39,18 @@ class CryptoDownloader:
                 temp_df = pd.read_csv(f"{self.output_path}/{ticker.lower()}usd.csv")
                 temp_df["ticker"] = ticker.lower()
                 df = df.append(temp_df)
+
             except FileNotFoundError as e:
                 logging.error(f"Ticker [{ticker}] does not exist or is not downloaded. If it's the first time you call"
                               f" this method, make sure to call download_data first.")
                 raise e
 
+        
         # parsing to datetime and filtering by dates
         df['datetime'] = pd.to_datetime(df['time'] / 1000, unit='s')
         df = df[(df['datetime'] > self.start_date) & (df['datetime'] < self.end_date)]
-
         df.drop('time', axis=1, inplace=True)
+        df = df.loc[:, ~df.columns.str.contains('^Unnamed')]
+        df.index = pd.MultiIndex.from_arrays(df[['ticker', 'datetime']].values.T, names=['idx1', 'idx2'])
+        df = df.sort_values(by=['datetime','ticker'])
         return df
