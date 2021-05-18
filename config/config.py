@@ -11,23 +11,6 @@ SINGLE_TICKER = ['BTC']
 
 TWO_TICKER = ['BTC','ETH']
 
-test = [
-'1inch',
-'aave',
-'ada',
-'albt',
-'alg',
-'amp',
-'ant',
-'ast',
-'ato',
-'avax',
-'avt',
-'b21x',
-'bal',
-'band',
-'bat',]
-
 MULTIPLE_TICKER = [
 '1inch',
 'aave',
