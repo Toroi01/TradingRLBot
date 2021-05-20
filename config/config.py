@@ -7,6 +7,8 @@ DATA_SAVE_DIR = f"/dataset/crypto_dataset"
 START_DATE = "2021-05-01"
 END_DATE = "2021-05-02"
 
+TECHNICAL_INDICATORS_LIST = ["macd","boll_ub","boll_lb","rsi_30", "cci_30", "dx_30","close_30_sma","close_60_sma"]
+
 SINGLE_TICKER = ['BTC']
 
 TWO_TICKER = ['BTC','ETH']
