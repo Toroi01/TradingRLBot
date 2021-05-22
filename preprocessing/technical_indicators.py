@@ -22,7 +22,7 @@ indicators_list = [
     ('kst_diff', ta.trend.aroon_up, ['close'])
 ]
 
-# Adding the indicators using the package ta. The default indicators are the one selected after have analyed the correlation.g
+# Adding the indicators using the package ta. The default indicators are the ones selected after have analysed the correlation.
 def add_indicators(df, indicators = ['atr', 'bbm', 'bbw', 'bbp', 'bbhi', 'bbli','kcp', 'kchi','kcli', 'macd', 'macd_diff', 'mass_indes', 'dpo', 'kst_diff']):
     indicators_selected = [indicator for indicator in indicators_list if indicator[0] in indicators]
     df_temp = df.copy()
