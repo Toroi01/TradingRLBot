@@ -37,7 +37,7 @@ class CryptoDownloader:
         for ticker in self.ticker_list:
             try:
                 temp_df = pd.read_csv(f"{self.output_path}/{ticker.lower()}usd.csv")
-                temp_df["ticker"] = ticker.lower()
+                temp_df["tic"] = ticker.lower()
                 df = df.append(temp_df)
 
             except FileNotFoundError as e:
@@ -45,12 +45,15 @@ class CryptoDownloader:
                               f" this method, make sure to call download_data first.")
                 raise e
 
+        df = df.reset_index()
         
         # parsing to datetime and filtering by dates
         df['datetime'] = pd.to_datetime(df['time'] / 1000, unit='s')
         df = df[(df['datetime'] > self.start_date) & (df['datetime'] < self.end_date)]
         df.drop('time', axis=1, inplace=True)
+        df.drop('index', axis=1, inplace=True)
         df = df.loc[:, ~df.columns.str.contains('^Unnamed')]
-        df.index = pd.MultiIndex.from_arrays(df[['ticker', 'datetime']].values.T, names=['idx1', 'idx2'])
-        df = df.sort_values(by=['datetime','ticker'])
+        df = df.dropna()
+        df = df.reset_index(drop=True)
+        df = df.sort_values(by=['datetime','tic']).reset_index(drop=True)
         return df
