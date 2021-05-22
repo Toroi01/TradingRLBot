@@ -16,3 +16,5 @@ tqdm==4.60.0
 urllib3==1.26.4
 wget==3.2
 yfinance==0.1.59
+stockstats==0.3.2
+ta==0.7.0
