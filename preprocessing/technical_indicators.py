@@ -30,8 +30,8 @@ indicators_list = [
 def add_indicators(df, indicators = ['atr', 'bbm', 'bbw', 'bbp', 'bbhi', 'bbli','kcp', 'kchi','kcli', 'macd', 'macd_diff', 'mass_index', 'dpo', 'kst','aroon_up', 'aroon_down','ppo']):
     """This function add the indicators using the package ta"""
     df_with_indicators = pd.DataFrame()
-    for ticker in df.ticker.unique():
-        df_temp = df[df["ticker"] == ticker].copy()
+    for ticker in df.tic.unique():
+        df_temp = df[df["tic"] == ticker].copy()
         indicators_selected = [indicator for indicator in indicators_list if indicator[0] in indicators]
         for name, f, arg_names in indicators_selected:
             wrapper = lambda func, args: func(*args)
@@ -48,8 +48,8 @@ def add_standard_indicators(df, indicators = ['macd', 'rsi_30', 'cci_30', 'dx_30
     This function return the dataframe with the finantial indicators specify. See https://pypi.org/project/stockstats/ for the documentation. 
     """
     df_with_indicators = pd.DataFrame()
-    for ticker in df.ticker.unique():
-        df_temp = df[df["ticker"] == ticker].copy()
+    for ticker in df.tic.unique():
+        df_temp = df[df["tic"] == ticker].copy()
         df_stocks = StockDataFrame(df_temp.copy())
         # We could change some default values for example 
         # df_stocks.MACD_EMA_LONG = 12 
