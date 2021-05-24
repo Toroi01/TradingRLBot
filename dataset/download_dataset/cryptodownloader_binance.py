@@ -31,12 +31,12 @@ class CryptoDownloader_binance:
     
     Methods
     -------
-    month_year_iter
-        a helper method to iterate through months
-    download_data
-        download the data from binance and store it at output_path
-    load   
-        loads the downloadad data 
+        month_year_iter
+            a helper method to iterate through months
+        download_data
+            download the data from binance and store it at output_path
+        load   
+            loads the downloadad data 
     '''
     def __init__(self, start_date: str, end_date: str, ticker_list: list, output_path: str = './dataset/crypto_dataset_binance', granularity: str = "1h"):
         self.start_date = datetime.date.fromisoformat(start_date) 
