@@ -16,5 +16,10 @@ tqdm==4.60.0
 urllib3==1.26.4
 wget==3.2
 yfinance==0.1.59
+gym==0.18.3
+matplotlib==3.4.2
+stable-baselines3[extra]
+stockstats==0.3.2
+pyfolio==0.9.2
 stockstats==0.3.2
 ta==0.7.0
