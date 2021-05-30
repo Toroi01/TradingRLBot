@@ -55,8 +55,8 @@ class StockPortfolioEnv(gym.Env):
         return account value at each time step
     save_action_memory()
         return actions/positions at each time step
-
-
+    save_ticks_allocation
+        return allocation at each time step
     """
 
     metadata = {"render.modes": ["human"]}
@@ -120,6 +120,9 @@ class StockPortfolioEnv(gym.Env):
         self.actions_memory = [[1 / self.stock_dim] * self.stock_dim]
         self.date_memory = [self.data.date.unique()[0]]
 
+        self.tics = self.df.tic.unique()
+        self.portfolio_value_per_tic = [[0] * self.stock_dim]
+
     def step(self, actions):
         # print(self.day)
         self.terminal = self.day >= len(self.df.index.unique()) - 1
@@ -154,7 +157,7 @@ class StockPortfolioEnv(gym.Env):
             return self.state, self.reward, self.terminal, {}
 
         else:
-            # print("Model actions: ",actions)
+            #print("Model actions: ", actions)
             # actions are the portfolio weight
             # normalize to sum of 1
             # if (np.array(actions) - np.array(actions).min()).sum() != 0:
@@ -176,7 +179,7 @@ class StockPortfolioEnv(gym.Env):
                 axis=0,
             )
             # print(self.state)
-            # calcualte portfolio return
+            # calculate portfolio return
             # individual stocks' return * weight
             portfolio_return = sum(
                 ((self.data.close.values / last_day_memory.close.values) - 1) * weights
@@ -184,13 +187,14 @@ class StockPortfolioEnv(gym.Env):
             # update portfolio value
             new_portfolio_value = self.portfolio_value * (1 + portfolio_return)
             self.portfolio_value = new_portfolio_value
+            self.portfolio_value_per_tic.append(np.array(weights) * new_portfolio_value)
 
             # save into memory
             self.portfolio_return_memory.append(portfolio_return)
             self.date_memory.append(self.data.date.unique()[0])
             self.asset_memory.append(new_portfolio_value)
 
-            # the reward is the new portfolio value or end portfolo value
+            # the reward is the new portfolio value or end portfolio value
             self.reward = new_portfolio_value
             # print("Step reward: ", self.reward)
             # self.reward = self.reward*self.reward_scaling
@@ -215,6 +219,7 @@ class StockPortfolioEnv(gym.Env):
         self.portfolio_return_memory = [0]
         self.actions_memory = [[1 / self.stock_dim] * self.stock_dim]
         self.date_memory = [self.data.date.unique()[0]]
+        self.portfolio_value_per_tic = [[0] * self.stock_dim]
         return self.state
 
     def render(self, mode="human"):
@@ -248,6 +253,15 @@ class StockPortfolioEnv(gym.Env):
         df_actions.index = df_date.date
         # df_actions = pd.DataFrame({'date':date_list,'actions':action_list})
         return df_actions
+
+    def save_ticks_allocation(self):
+        date_list = self.date_memory
+        df_date = pd.DataFrame(date_list)
+        df_date.columns = ["date"]
+        df_portfolio = pd.DataFrame(self.portfolio_value_per_tic)
+        df_portfolio.columns = self.data.tic.values
+        df_portfolio.index = df_date.date
+        return df_portfolio
 
     def _seed(self, seed=None):
         self.np_random, seed = seeding.np_random(seed)

@@ -1,95 +1,49 @@
-import pandas as pd
 import numpy as np
+import pandas as pd
+from pyfolio import create_full_tear_sheet
 
-from pyfolio import timeseries
-import pyfolio
-import matplotlib.pyplot as plt
-import matplotlib.dates as mdates
-from copy import deepcopy
-
-from finrl.marketdata.yahoodownloader import YahooDownloader
-from config import config
+from model.models import DRLAgent
 
 
-def get_daily_return(df, value_col_name="account_value"):
-    df = deepcopy(df)
-    df["daily_return"] = df[value_col_name].pct_change(1)
-    df["date"] = pd.to_datetime(df["date"])
-    df.set_index("date", inplace=True, drop=True)
-    df.index = df.index.tz_localize("UTC")
-    return pd.Series(df["daily_return"], index=df.index)
+class BackTest:
 
-def convert_daily_return_to_pyfolio_ts(df):
-    strategy_ret= df.copy()
-    strategy_ret['date'] = pd.to_datetime(strategy_ret['date'])
-    strategy_ret.set_index('date', drop = False, inplace = True)
-    strategy_ret.index = strategy_ret.index.tz_localize('UTC')
-    del strategy_ret['date']
-    ts = pd.Series(strategy_ret['daily_return'].values, index=strategy_ret.index)
-    return ts
+    def __init__(self, model, test_gym):
+        self.model = model
+        self.test_gym = test_gym
+        self.summary = []
 
-def backtest_stats(account_value, value_col_name="account_value"):
-    dr_test = get_daily_return(account_value, value_col_name=value_col_name)
-    perf_stats_all = timeseries.perf_stats(
-        returns=dr_test,
-        positions=None,
-        transactions=None,
-        turnover_denom="AGB",
-    )
-    print(perf_stats_all)
-    return perf_stats_all
+    def run(self, hourly_returns, hourly_allocation):
+        returns, positions, transactions = self.prepare_full_tearsheet(hourly_returns, hourly_allocation)
+        return create_full_tear_sheet(returns, positions, transactions=None, market_data=self.test_gym.df)
 
+    def prepare_full_tearsheet(self, df_daily_return, df_allocation_per_tick):
+        returns = self.calculate_returns(df_daily_return)
+        positions = self.calculate_positions(df_allocation_per_tick)
+        return returns, positions, None
 
-def backtest_plot(
-    account_value,
-    baseline_start=config.START_TRADE_DATE,
-    baseline_end=config.END_DATE,
-    baseline_ticker="^DJI",
-    value_col_name="account_value",
-):
+    def calculate_returns(self, df):
+        # Here we pass from hourly to daily date in order to use pyfolio correctly
+        strategy_returns = df.copy()
+        strategy_returns["datetime"] = pd.to_datetime(strategy_returns["date"])
+        strategy_returns.drop("date", axis=1, inplace=True)
+        strategy_returns["date"] = pd.to_datetime(strategy_returns["datetime"].dt.date)
+        strategy_returns.set_index("date", drop=False, inplace=True)
 
-    df = deepcopy(account_value)
-    test_returns = get_daily_return(df, value_col_name=value_col_name)
+        def cumulative_return_intraday(returns):
+            values = returns.values
+            values = np.array(values) + 1
+            return np.product(values) - 1
 
-    baseline_df = get_baseline(
-        ticker=baseline_ticker, start=baseline_start, end=baseline_end
-    )
+        ts = strategy_returns["daily_return"].groupby(strategy_returns.index).agg(
+            cumulative_return_intraday).squeeze()
 
-    baseline_returns = get_daily_return(baseline_df, value_col_name="close")
-    with pyfolio.plotting.plotting_context(font_scale=1.1):
-        pyfolio.create_full_tear_sheet(
-            returns=test_returns, benchmark_rets=baseline_returns, set_context=False
-        )
+        return ts
+
+    def calculate_positions(self, df_allocation_per_tick):
+        df_allocation = df_allocation_per_tick.copy().reset_index()
+        df_allocation["date"] = pd.to_datetime(df_allocation.date).dt.date # Transforming to date
+        df_allocation["date"] = pd.to_datetime(df_allocation["date"])
+        df_allocation = df_allocation.groupby("date").first()
+        return df_allocation
 
 
-def get_baseline(ticker, start, end):
-    dji = YahooDownloader(
-        start_date=start, end_date=end, ticker_list=[ticker]
-    ).fetch_data()
-    return dji
-
-
-def trx_plot(df_trade,df_actions,ticker_list):    
-    df_trx = pd.DataFrame(np.array(df_actions['transactions'].to_list()))
-    df_trx.columns = ticker_list
-    df_trx.index = df_actions['date']
-    df_trx.index.name = ''
-    
-    for i in range(df_trx.shape[1]):
-        df_trx_temp = df_trx.iloc[:,i]
-        df_trx_temp_sign = np.sign(df_trx_temp)
-        buying_signal = df_trx_temp_sign.apply(lambda x: True if x>0 else False)
-        selling_signal = df_trx_temp_sign.apply(lambda x: True if x<0 else False)
-        
-        tic_plot = df_trade[(df_trade['tic']==df_trx_temp.name) & (df_trade['date'].isin(df_trx.index))]['close']
-        tic_plot.index = df_trx_temp.index
-
-        plt.figure(figsize = (10, 8))
-        plt.plot(tic_plot, color='g', lw=2.)
-        plt.plot(tic_plot, '^', markersize=10, color='m', label = 'buying signal', markevery = buying_signal)
-        plt.plot(tic_plot, 'v', markersize=10, color='k', label = 'selling signal', markevery = selling_signal)
-        plt.title(f"{df_trx_temp.name} Num Transactions: {len(buying_signal[buying_signal==True]) + len(selling_signal[selling_signal==True])}")
-        plt.legend()
-        plt.gca().xaxis.set_major_locator(mdates.DayLocator(interval=25)) 
-        plt.xticks(rotation=45, ha='right')
-        plt.show()
