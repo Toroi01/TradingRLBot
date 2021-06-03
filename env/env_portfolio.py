@@ -172,7 +172,8 @@ class StockPortfolioEnv2(gym.Env):
             # calcualte portfolio value the next day and return 
             new_portfolio_value = sum(( np.append(self.data.close.values , [1])  /  np.append(last_day_memory.close.values , [1] )  - 1) * weights  * (self.portfolio_value - commissions))+ (self.portfolio_value - commissions)
             
-            portfolio_return = new_portfolio_value - self.portfolio_value
+            #portfolio_return = new_portfolio_value - self.portfolio_value ### Option to put the return the absolute number
+            portfolio_return = (new_portfolio_value - self.portfolio_value)/self.portfolio_value
                                    
             # update portfolio value
             self.portfolio_value = new_portfolio_value
@@ -247,7 +248,8 @@ class StockPortfolioEnv2(gym.Env):
         return e, obs
                 
                 
-                
+ 
+# to add -> stop if 0 dollars
 class StockPortfolioEnv(gym.Env):
     """A single stock trading environment for OpenAI gym
 
