@@ -104,8 +104,16 @@ class CryptoDownloader_binance:
                     temp_df_1 = temp_df_1.reset_index()
                     df = df.append(temp_df_1, ignore_index=True)
                     df.fillna(method='ffill', inplace=True)
-                    
+
+            df = self.add_usd(df)
             df.to_csv(f"{self.output_path}/full_dataset.csv",index=False)
             return df
         else:
             return pd.read_csv(f"{self.output_path}/full_dataset.csv")
+
+
+    def add_usd(self, df):
+        usd = df.groupby('date').sum().reset_index()
+        usd[['open', 'high', 'low', 'close']] = 1
+        usd['tic'] = 'cash'
+        return df.append(usd)

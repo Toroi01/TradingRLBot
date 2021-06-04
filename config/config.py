@@ -6,9 +6,8 @@ RESULTS_DIR = f"./results"
 
 ## time_fmt = '%Y-%m-%d'
 START_DATE = "2020-01-01"
+START_TEST_DATE = "2021-01-01"
 END_DATE = "2021-04-21"
-
-TECHNICAL_INDICATORS_LIST = ["macd","boll_ub","boll_lb","rsi_30", "cci_30", "dx_30","close_30_sma","close_60_sma"]
 
 TECHNICAL_INDICATORS_LIST = ["macd","boll_ub","boll_lb","rsi_30", "cci_30", "dx_30","close_30_sma","close_60_sma"]
 
@@ -30,7 +29,6 @@ PPO_PARAMS = {
 DDPG_PARAMS = {"batch_size": 128, "buffer_size": 50000, "learning_rate": 0.001}
 TD3_PARAMS = {"batch_size": 100, "buffer_size": 1000000, "learning_rate": 0.001}
 SAC_PARAMS = {
-    "batch_size": 64,
     "buffer_size": 100000,
     "learning_rate": 0.0001,
     "learning_starts": 100,
