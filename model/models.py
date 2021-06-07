@@ -71,21 +71,19 @@ class DRLAgent:
     def DRL_prediction(model, environment):
         test_env, test_obs = environment.get_sb_env()
         """make a prediction"""
-        account_memory = []
-        actions_memory = []
         test_env.reset()
         for i in range(len(environment.df.index.unique())):
             action, _states = model.predict(test_obs)
-            #account_memory = test_env.env_method(method_name="save_asset_memory")
-            #actions_memory = test_env.env_method(method_name="save_action_memory")
             test_obs, rewards, dones, info = test_env.step(action)
-            if i == (len(environment.df.index.unique()) - 2):
-              account_memory = test_env.env_method(method_name="save_asset_memory")
-              actions_memory = test_env.env_method(method_name="save_action_memory")
+            if i == (len(environment.df.index.unique()) - 3):
+                allocations = test_env.env_method(method_name="save_asset_memory")
+                transactions = test_env.env_method(method_name="save_action_memory")
+                allocation_values = test_env.env_method(method_name="save_asset_values_memory")
+
             if dones[0]:
                 print("hit end!")
                 break
-        return account_memory[0], actions_memory[0]
+        return allocations[0], transactions[0], allocation_values[0]
 
     def __init__(self, env):
         self.env = env
