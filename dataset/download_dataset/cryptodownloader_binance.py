@@ -105,7 +105,6 @@ class CryptoDownloader_binance:
                     df = df.append(temp_df_1, ignore_index=True)
                     df.fillna(method='ffill', inplace=True)
 
-            df = self.add_usd(df)
             df.to_csv(f"{self.output_path}/full_dataset.csv",index=False)
             return df
         else:
