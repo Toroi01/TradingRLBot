@@ -68,9 +68,13 @@ class CustomTradingEnv(gym.Env):
     def _next_timestep(self):
         """
         Gets the data from the next timestep and updates the
-        _hourly_data variable
+        _hourly_counter variable
         """
         self._hour_counter += 1
+
+        if len(self.ticker_list) == 1:
+            return self.df.iloc[self._hour_counter, :].to_frame().T
+
         return self.df.loc[self._hour_counter, :]
 
     def _do_action(self, ticker, action, hourly_data):
@@ -79,7 +83,7 @@ class CustomTradingEnv(gym.Env):
         0: Not buying nor selling
         >0: Buy
         <0: Sell
-        If turbulence is present, some times we won't perform any action even if the algorithm wanted
+        If turbulence is present, sometimes we won't perform any action even if the algorithm wanted
         to.
         :param hourly_data: Data from the current hour for all the tickers
         :param ticker: String corresponding to the name of the ticker
