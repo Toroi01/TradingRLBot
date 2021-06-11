@@ -73,7 +73,8 @@ class Portfolio:
         self.cash -= amount_in_cash
 
         # Log transaction
-        self.log_transaction(timestamp, 'buy', ticker, amount, price)
+        if amount != 0:
+            self.log_transaction(timestamp, 'buy', ticker, amount, price)
 
     def sell(self, ticker, amount, price, timestamp, comission_value):
         """
@@ -97,7 +98,8 @@ class Portfolio:
         self.cash += amount_in_cash
 
         # Log transaction
-        self.log_transaction(timestamp, 'sell', ticker, amount, price)
+        if amount != 0:
+            self.log_transaction(timestamp, 'sell', ticker, amount, price)
 
     def get_total_portfolio_value(self, hourly_data):
         """
