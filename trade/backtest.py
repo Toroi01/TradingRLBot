@@ -55,7 +55,7 @@ class BackTest:
         )
         market_data = self.test_gym.df.pivot_table(index='date', columns=["tic"], values=["close"]).reset_index()
 
-        for tic in self.test_gym.ticker_list:
+        for tic in self.test_gym.all_tickers:
             crypto_evolution = BackTest.to_cumulative(market_data.close[tic].pct_change())
             fig.add_trace(
                 go.Scatter(x=market_data.date, y=crypto_evolution, name=tic),

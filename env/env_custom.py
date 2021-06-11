@@ -14,13 +14,20 @@ class CustomTradingEnv(gym.Env):
     """A custom stock trading environment for OpenAI gym"""
     metadata = {'render.modes': ['human']}
 
-    def __init__(self, df, ticker_list, max_assets_amount_per_trade, technical_indicator_list, initial_amount,
-                 turbulence_threshold=None, reward_scaling=1, comission_value=None):
-        self.df = df
+    def __init__(self, df, main_tickers, all_tickers, max_assets_amount_per_trade, technical_indicator_list,
+                 initial_amount,
+                 turbulence_threshold=None, reward_scaling=1, comission_value=None, transaction_price_threshold=None):
         # In each step, the maximum number of assets per ticker is limited to a value
         self.max_assets_amount_per_trade = max_assets_amount_per_trade
-        # String list with the ticker names
-        self.ticker_list = ticker_list
+        # String list with the ticker names that we want to buy and sell
+        self.main_tickers = [x.lower() for x in main_tickers]
+        # String list with tickers that will be used as information.
+        # Here we verify that main tickers are in both lists
+        all_tickers = [x.lower() for x in all_tickers]
+        all_tickers = list(set(all_tickers + self.main_tickers))
+        self.all_tickers = all_tickers
+        # Filter df with selected tickers
+        self.df = df[df.tic.isin(self.all_tickers)]
         # Hyperparam value to multiply rewards
         self.reward_scaling = reward_scaling
         # Value between 0 and 1 that will represent the comission
@@ -29,9 +36,10 @@ class CustomTradingEnv(gym.Env):
         self.turbulence_threshold = turbulence_threshold
 
         self.state = State(technical_indicator_list)
-        self.portfolio = Portfolio(cash=initial_amount, ticker_list=ticker_list)
-        self.action_space = spaces.Box(low=-1, high=1, shape=(len(self.ticker_list),))
-        self.observation_space = spaces.Box(low=-np.inf, high=np.inf, shape=(self.state.get_size(len(ticker_list)),))
+        self.portfolio = Portfolio(cash=initial_amount, ticker_list=self.main_tickers)
+        self.action_space = spaces.Box(low=-1, high=1, shape=(len(self.main_tickers),))
+        self.observation_space = spaces.Box(low=-np.inf, high=np.inf,
+                                            shape=(self.state.get_size(self.main_tickers, self.all_tickers),))
 
         self._hour_counter = -1
         self._episode = 0
@@ -45,36 +53,35 @@ class CustomTradingEnv(gym.Env):
         :return: New state, reward
         """
         # Update the hourly data and calcula the current portfolio value
-        hourly_data = self._next_timestep()
+        hourly_data = self._get_hourly_data()
         prev_portfolio_value = self.portfolio.get_total_portfolio_value(hourly_data)
 
         # Buy, sell or hold
-        for ticker, action in zip(self.ticker_list, actions):
+        for ticker, action in zip(self.main_tickers, actions):
             self._do_action(ticker, action, hourly_data)
 
         # Update status with the new portfolio and data
         self.state.update(self.portfolio, hourly_data)
 
-        # Calculate new portfolio value and the reward
-        new_portfolio_value = self.portfolio.get_total_portfolio_value(hourly_data)
+        # Calculate new portfolio value and the reward with the next hourtly data
+        self._hour_counter += 1
+        new_hourly_data = self._get_hourly_data()
+        new_portfolio_value = self.portfolio.get_total_portfolio_value(new_hourly_data)
         reward = self._compute_reward(prev_portfolio_value, new_portfolio_value)
 
         # Logging current allocation
-        self.log_allocation_amount(hourly_data)
-        self.log_allocation_values(hourly_data)
+        self.log_allocation_amount(new_hourly_data)
+        self.log_allocation_values(new_hourly_data)
 
         return self.state.values(), reward, self.is_done(), {}
 
-    def _next_timestep(self):
+    def _get_hourly_data(self):
         """
         Gets the data from the next timestep and updates the
-        _hourly_counter variable
+        _hourly_counter variable. Filter by only the desired tickers.
         """
-        self._hour_counter += 1
-
-        if len(self.ticker_list) == 1:
+        if len(self.all_tickers) == 1:
             return self.df.iloc[self._hour_counter, :].to_frame().T
-
         return self.df.loc[self._hour_counter, :]
 
     def _do_action(self, ticker, action, hourly_data):
@@ -132,7 +139,7 @@ class CustomTradingEnv(gym.Env):
 
     def is_done(self):
         # Check if it's the last iteration
-        return self._hour_counter == len(self.df) // len(self.ticker_list) - 1
+        return self._hour_counter == len(self.df) // len(self.all_tickers) - 1
 
     def reset(self):
         """
@@ -140,8 +147,8 @@ class CustomTradingEnv(gym.Env):
         :return: Initial state
         """
         self.portfolio.reset()
-        self._hour_counter = -1
-        hourly_data = self._next_timestep()
+        self._hour_counter = 0
+        hourly_data = self._get_hourly_data()
         self.state.reset()
         self.state.update(self.portfolio, hourly_data)
 
