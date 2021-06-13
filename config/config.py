@@ -9,14 +9,27 @@ START_DATE = "2020-01-01"
 START_TEST_DATE = "2021-01-01"
 END_DATE = "2021-04-21"
 
-TECHNICAL_INDICATORS_LIST = ["macd","boll_ub","boll_lb","rsi_30", "cci_30", "dx_30","close_30_sma","close_60_sma"]
+TECHNICAL_INDICATORS_LIST = ["macd",
+                             "boll_ub",
+                             "boll_lb",
+                             "rsi_24",
+                             "rsi_168",
+                             "rsi_720",
+                             "cci_24",
+                             "cci_168",
+                             "cci_720",
+                             "dx_24",
+                             "dx_168",
+                             "dx_720",
+                             "close_24_sma",
+                             "close_168_sma",
+                             "close_720_sma"]
 
 SINGLE_TICKER = ['BTC']
 
-TWO_TICKER = ['BTC','ETH']
+TWO_TICKER = ['BTC', 'ETH']
 
-MULTIPLE_TICKER_8 = ["BTC","ETH","BNB","ADA","XRP","DOGE","LINK","LTC"]
-
+MULTIPLE_TICKER_8 = ["BTC", "ETH", "BNB", "ADA", "XRP", "DOGE", "LINK", "LTC"]
 
 ## Model Parameters
 A2C_PARAMS = {"n_steps": 5, "ent_coef": 0.01, "learning_rate": 0.0007}

@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 from stockstats import StockDataFrame as Sdf
+
 from config import config
 
 
@@ -26,11 +27,11 @@ class FeatureEngineer:
     """
 
     def __init__(
-        self,
-        use_technical_indicator=True,
-        tech_indicator_list=config.TECHNICAL_INDICATORS_LIST,
-        use_turbulence=False,
-        user_defined_feature=False,
+            self,
+            use_technical_indicator=True,
+            tech_indicator_list=config.TECHNICAL_INDICATORS_LIST,
+            use_turbulence=False,
+            user_defined_feature=False,
     ):
         self.use_technical_indicator = use_technical_indicator
         self.tech_indicator_list = tech_indicator_list
@@ -60,6 +61,7 @@ class FeatureEngineer:
 
         # fill the missing values at the beginning and the end
         df = df.fillna(method="bfill").fillna(method="ffill")
+        df = self.limit_numbers(df)
         return df
 
     def add_technical_indicator(self, data):
@@ -70,7 +72,7 @@ class FeatureEngineer:
         :return: (df) pandas dataframe
         """
         df = data.copy()
-        df = df.sort_values(by=['tic','date'])
+        df = df.sort_values(by=['tic', 'date'])
         stock = Sdf.retype(df.copy())
         unique_ticker = stock.tic.unique()
 
@@ -87,8 +89,8 @@ class FeatureEngineer:
                     )
                 except Exception as e:
                     print(e)
-            df = df.merge(indicator_df[['tic','date',indicator]],on=['tic','date'],how='left')
-        df = df.sort_values(by=['date','tic'])
+            df = df.merge(indicator_df[['tic', 'date', indicator]], on=['tic', 'date'], how='left')
+        df = df.sort_values(by=['date', 'tic'])
         return df
 
     def add_user_defined_feature(self, data):
@@ -97,12 +99,14 @@ class FeatureEngineer:
         :param data: (df) pandas dataframe
         :return: (df) pandas dataframe
         """
+
         df = data.copy()
-        df["daily_return"] = df.close.pct_change(1)
-        # df['return_lag_1']=df.close.pct_change(2)
-        # df['return_lag_2']=df.close.pct_change(3)
-        # df['return_lag_3']=df.close.pct_change(4)
-        # df['return_lag_4']=df.close.pct_change(5)
+        stock = Sdf.retype(df.copy())
+        unique_ticker = stock.tic.unique()
+
+        for column in self.tech_indicator_list + ["open", "close", "high", "low"]:
+            for ticker in unique_ticker:
+                df.loc[df.tic == ticker, f"{column}_diff"] = df.loc[df.tic == ticker, column].pct_change()
         return df
 
     def add_turbulence(self, data):
@@ -137,7 +141,7 @@ class FeatureEngineer:
             hist_price = df_price_pivot[
                 (df_price_pivot.index < unique_date[i])
                 & (df_price_pivot.index >= unique_date[i - 252])
-            ]
+                ]
             # Drop tickers which has number missing values more than the "oldest" ticker
             filtered_hist_price = hist_price.iloc[hist_price.isna().sum().min():].dropna(axis=1)
 
@@ -161,3 +165,23 @@ class FeatureEngineer:
             {"date": df_price_pivot.index, "turbulence": turbulence_index}
         )
         return turbulence_index
+
+    def limit_numbers(self, df):
+        """
+        Avoid having extra big and extra small numbers
+        :param df:
+        :return:
+        """
+        def to_zero(row):
+            if abs(row) < 1e-10:
+                return 0
+            elif abs(row) > 1e10:
+                return 1e10
+            else:
+                return row
+
+        for column in df.columns:
+
+            if column not in ["date", "tic"]:
+                df[column] = df[column].apply(to_zero)
+        return df
