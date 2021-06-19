@@ -161,3 +161,27 @@ class FeatureEngineer:
             {"date": df_price_pivot.index, "turbulence": turbulence_index}
         )
         return turbulence_index
+
+
+def add_covariance(df , lookback):
+    """This function return the dataframe with the followings modifications:
+    - An extra columns with the covariance matrix calculated consider the previous amout of hours as specify in the lookback
+    - The dataframe is order for hour and crypto and the index represent the timestamp
+    - We have eliminat the first n observations where n=lookback
+    """
+    df=df.sort_values(['date','tic'],ignore_index=True)
+    df.index = df.date.factorize()[0]
+    cov_list = []
+    # look back is six months
+    lookback=4320
+    for i in range(lookback,len(df.index.unique())):
+        data_lookback = df.loc[i-lookback:i,:]
+        price_lookback=data_lookback.pivot_table(index = 'date',columns = 'tic', values = 'close')
+        return_lookback = price_lookback.pct_change().dropna()
+        covs = return_lookback.cov().values 
+        cov_list.append(covs)
+    # We add the covariance metrices and we eliminate the first 6 month of training since we can not use them 
+    df_cov = pd.DataFrame({'date':df.date.unique()[lookback:],'cov_list':cov_list})
+    df = df.merge(df_cov, on='date')
+    df = df.sort_values(['date','tic']).reset_index(drop=True)
+    return df 

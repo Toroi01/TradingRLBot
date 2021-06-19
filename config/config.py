@@ -10,6 +10,7 @@ START_TEST_DATE = "2021-01-01"
 END_DATE = "2021-04-21"
 
 TECHNICAL_INDICATORS_LIST = ["macd","boll_ub","boll_lb","rsi_30", "cci_30", "dx_30","close_30_sma","close_60_sma"]
+TECHNICAL_INDICATORS_LIST2 = ['psar', 'ui', 'atr', 'bbw', 'bbp', 'bbhi', 'bbli','kcp', 'kchi','kcli', 'macd', 'macd_diff', 'mass_index', 'dpo', 'kst','aroon_up', 'aroon_down','ppo']
 
 SINGLE_TICKER = ['BTC']
 
