@@ -24,3 +24,5 @@ git+git://github.com/dvdpedros/pyfolio@fix-extreme-drawdown
 stockstats==0.3.2
 ta==0.7.0
 empirical==0.2
+plotly==4.14.3
+stockstats==0.3.2
