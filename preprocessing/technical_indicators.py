@@ -6,7 +6,8 @@ import ta
 
 # List of indicators 
 indicators_list = [ 
-    ('bbm', ta.volatility.bollinger_mavg, ['close']),
+    ('psar', ta.trend.psar_up_indicator, ['high', 'low', 'close']),
+    ('ui',ta.volatility.ulcer_index, ['close']),
     ('atr', ta.volatility.average_true_range, ['high', 'low', 'close']),
     ('bbw', ta.volatility.bollinger_wband, ["close"]),
     ('bbp', ta.volatility.bollinger_pband, ['close']),
@@ -17,7 +18,6 @@ indicators_list = [
     ('kcli',ta.volatility.keltner_channel_hband, ['high', 'low', 'close']),
     ('macd', ta.trend.macd, ['close']),
     ('macd_diff', ta.trend.macd_diff, ['close']),
-    ('adx', ta.trend.adx, ['high','low','close']),
     ('mass_index', ta.trend.mass_index, ['high', 'low']),
     ('dpo', ta.trend.dpo, ['close']),
     ('kst', ta.trend.kst, ['close']),
@@ -27,7 +27,7 @@ indicators_list = [
 ]
 
 # Adding the indicators using the package ta. The default indicators are the ones selected after have analysed the correlation.
-def add_indicators(df, indicators = ['atr', 'bbm', 'bbw', 'bbp', 'bbhi', 'bbli','kcp', 'kchi','kcli', 'macd', 'macd_diff', 'mass_index', 'dpo', 'kst','aroon_up', 'aroon_down','ppo']):
+def add_indicators(df, indicators = ['psar', 'ui', 'atr', 'bbw', 'bbp', 'bbhi', 'bbli','kcp', 'kchi','kcli', 'macd', 'macd_diff', 'mass_index', 'dpo', 'kst','aroon_up', 'aroon_down','ppo']):
     """This function add the indicators using the package ta"""
     df_with_indicators = pd.DataFrame()
     for ticker in df.tic.unique():

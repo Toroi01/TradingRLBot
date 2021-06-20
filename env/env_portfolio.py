@@ -9,6 +9,242 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 from stable_baselines3.common.vec_env import DummyVecEnv
 
+# Personalization of the StockPortfolioEnv adding commissions, cash value and the fundamental indicators. 
+class StockPortfolioEnv2(gym.Env):
+    """A single stock trading environment for OpenAI gym
+    Attributes
+    ----------
+        df: DataFrame
+            input data
+        stock_dim : int
+            number of unique stocks
+        initial_amount : int
+            start money
+        transaction_cost_pct: float
+            transaction cost percentage per trade
+        reward_scaling: float
+            scaling factor for reward, good for training
+        state_space: int
+            the dimension of input features
+        action_space: int
+            equals stock dimension
+        tech_indicator_list: list
+            a list of technical indicator names
+        turbulence_threshold: int
+            a threshold to control risk aversion
+        day: int
+            an increment number to control date
+    Methods
+    -------
+    _sell_stock()
+        perform sell action based on the sign of the action
+    _buy_stock()
+        perform buy action based on the sign of the action
+    step()
+        at each step the agent will return actions, then
+        we will calculate the reward, and return the next observation.
+    reset()
+        reset the environment
+    render()
+        use render to return other functions
+    save_asset_memory()
+        return account value at each time step
+    save_action_memory()
+        return actions/positions at each time step
+    """
+
+    metadata = {"render.modes": ["human"]}
+
+    def __init__(
+        self,
+        df,
+        stock_dim,
+        initial_amount,
+        transaction_cost_pct,
+        reward_scaling,
+        state_space,
+        action_space,
+        tech_indicator_list,
+        turbulence_threshold=None,
+        day=0, 
+    ): 
+        # super(StockEnv, self).__init__()
+        
+        self.day = day
+        self.df = df
+        self.stock_dim = stock_dim +1 
+        self.initial_amount = initial_amount
+        self.transaction_cost_pct = transaction_cost_pct
+        self.reward_scaling = reward_scaling
+        self.state_space = state_space
+        self.action_space = action_space
+        # I have added the fundamental measures 
+        self.tech_indicator_list = tech_indicator_list + ['open', 'high' , 'low', 'close', 'volume']
+
+        # action_space normalization and shape is self.stock_dim +1 cause we wanted to add the cash
+        self.action_space = spaces.Box(low=0, high=1, shape=(self.action_space + 1,))
+        # covariance matrix + technical indicators + the four main columns
+        self.observation_space = spaces.Box(
+            low=-np.inf,
+            high=np.inf,
+            shape=(self.state_space + len(self.tech_indicator_list), self.state_space),
+        )
+
+        # load data from a pandas dataframe
+        self.data = self.df.loc[self.day, :]
+        self.covs = self.data["cov_list"].values[0]
+        # Rewrite the state 
+        self.state = np.append(
+            np.array(self.covs),
+            [self.data[tech].values.tolist() for tech in self.tech_indicator_list],
+            axis=0,
+        )
+        self.terminal = False
+        self.turbulence_threshold = turbulence_threshold
+        # initalize state: inital portfolio return + individual stock return + individual weights
+        self.portfolio_value = self.initial_amount
+
+        # memorize portfolio value each step
+        self.asset_memory = [self.initial_amount]
+        # memorize portfolio return each step
+        self.portfolio_return_memory = [0]
+        self._s_memory = [[1 / self.stock_dim] * self.stock_dim]
+        self.date_memory = [self.data.date.unique()[0]]
+
+    def step(self, actions):
+        # We check if we have finished the days we have given in the training
+        self.terminal = self.day >= len(self.df.index.unique()) - 1
+        
+        # If we have finished the hours we print the returned we got 
+        if self.terminal:
+            df = pd.DataFrame(self.portfolio_return_memory)
+            df.columns = ["hourly_return"]
+            plt.plot(df.hourly_return.cumsum(), "r")
+            plt.savefig("results/cumulative_reward.png")
+            plt.close()
+
+            plt.plot(self.portfolio_return_memory, "r")
+            plt.savefig("results/rewards.png")
+            plt.close()
+
+            print("=================================")
+            print("begin_total_asset:{}".format(self.asset_memory[0]))
+            print("end_total_asset:{}".format(self.portfolio_value))
+            print("end portfolio distribution:{}".format(self.actions_memory[-1]))
+            df_hourly_return = pd.DataFrame(self.portfolio_return_memory)
+            df_hourly_return.columns = ["hourly_return"]
+            if df_hourly_return["hourly_return"].std() != 0:
+                sharpe = (
+                    (252 ** 0.5)
+                    * df_hourly_return["hourly_return"].mean()
+                    / df_hourly_return["hourly_return"].std()
+                )
+                print("Sharpe: ", sharpe)
+            print("=================================")
+
+            return self.state, self.reward, self.terminal, {}
+
+        else:
+            # print("Model actions: ",actions)
+            # actions are the portfolio weight
+            # normalize to sum of 1
+            weights = self.softmax_normalization(actions)
+            self.actions_memory.append(weights)
+            last_day_memory = self.data
+
+            # load next state
+            self.day += 1
+            self.data = self.df.loc[self.day, :]
+            self.covs = self.data["cov_list"].values[0]
+            self.state = np.append(
+                np.array(self.covs),
+                [self.data[tech].values.tolist() for tech in self.tech_indicator_list],
+                axis=0,
+            )
+            # calculate the costs of these movements
+            differences = weights - self.actions_memory[-2]
+            Sum_positive_differences = sum([i for i in differences if i > 0])
+            commissions = Sum_positive_differences * self.portfolio_value * self.transaction_cost_pct
+           
+            # calcualte portfolio value the next day and return 
+            new_portfolio_value = sum(( np.append(self.data.close.values , [1])  /  np.append(last_day_memory.close.values , [1] )  - 1) * weights  * (self.portfolio_value - commissions))+ (self.portfolio_value - commissions)
+            
+            #portfolio_return = new_portfolio_value - self.portfolio_value ### Option to put the return the absolute number
+            portfolio_return = (new_portfolio_value - self.portfolio_value)/self.portfolio_value
+                                   
+            # update portfolio value
+            self.portfolio_value = new_portfolio_value
+
+            # save into memory
+            self.portfolio_return_memory.append(portfolio_return)
+            self.date_memory.append(self.data.date.unique()[0])
+            self.asset_memory.append(new_portfolio_value)
+
+            # the reward is the new portfolio value or end portfolo value
+            self.reward = new_portfolio_value
+            # print("Step reward: ", self.reward)
+            # self.reward = self.reward*self.reward_scaling
+
+        return self.state, self.reward, self.terminal, {}
+
+    def reset(self):
+        self.asset_memory = [self.initial_amount]
+        self.day = 0
+        self.data = self.df.loc[self.day, :]
+        # load states
+        self.covs = self.data["cov_list"].values[0]
+        self.state = np.append(
+            np.array(self.covs),
+            [self.data[tech].values.tolist() for tech in self.tech_indicator_list],
+            axis=0,
+        )
+        self.portfolio_value = self.initial_amount
+        self.terminal = False
+        self.portfolio_return_memory = [0]
+        self.actions_memory = [[1 / self.stock_dim] * self.stock_dim]
+        self.date_memory = [self.data.date.unique()[0]]
+        return self.state
+
+    def render(self, mode="human"):
+        return self.state
+
+    def softmax_normalization(self, actions):
+        numerator = np.exp(actions)
+        denominator = np.sum(np.exp(actions))
+        softmax_output = numerator / denominator
+        return softmax_output
+
+    def save_asset_memory(self):
+        date_list = self.date_memory
+        portfolio_return = self.portfolio_return_memory
+        df_account_value = pd.DataFrame(
+            {"date": date_list, "hourly_return": portfolio_return}
+        )
+        return df_account_value
+
+    def save_action_memory(self):
+        # date and close price length must match actions length
+        date_list = self.date_memory
+        df_date = pd.DataFrame(date_list)
+        df_date.columns = ["date"]
+
+        action_list = self.actions_memory
+        df_actions = pd.DataFrame(action_list)
+        df_actions.columns = self.data.tic.values
+        df_actions.index = df_date.date
+        # df_actions = pd.DataFrame({'date':date_list,'actions':action_list})
+        return df_actions
+
+    def _seed(self, seed=None):
+        self.np_random, seed = seeding.np_random(seed)
+        return [seed]
+
+    def get_sb_env(self):
+        e = DummyVecEnv([lambda: self])
+        obs = e.reset()
+        return e, obs
+                
+                
 
 class StockPortfolioEnv(gym.Env):
     """A single stock trading environment for OpenAI gym

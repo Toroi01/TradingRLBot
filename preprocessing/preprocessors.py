@@ -165,6 +165,26 @@ class FeatureEngineer:
             {"date": df_price_pivot.index, "turbulence": turbulence_index}
         )
         return turbulence_index
+    
+    def limit_numbers(self, df):
+        """
+        Avoid having extra big and extra small numbers
+        :param df:
+        :return:
+        """
+        def to_zero(row):
+            if abs(row) < 1e-10:
+                return 0
+            elif abs(row) > 1e10:
+                return 1e10
+            else:
+                return row
+
+        for column in df.columns:
+
+            if column not in ["date", "tic"]:
+                df[column] = df[column].apply(to_zero)
+        return df
 
 
 def add_covariance(df , lookback):
@@ -189,6 +209,7 @@ def add_covariance(df , lookback):
     df = df.merge(df_cov, on='date')
     df = df.sort_values(['date','tic']).reset_index(drop=True)
     return df 
+
     def limit_numbers(self, df):
         """
         Avoid having extra big and extra small numbers
