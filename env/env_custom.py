@@ -144,20 +144,14 @@ class CustomTradingEnv(gym.Env):
             portfolio_row = pd.DataFrame(assets_values)
             portfolio_row['date'] = hourly_data.date.iloc[0]
             df_historic.append(portfolio_row)
-            future_window = min(24, max(self.df.index)- self._hour_counter )
+            future_window = min(0, max(self.df.index)- self._hour_counter )
             if future_window >0:
                 for i in range(future_window):
                     future_value = portfolio_row.copy()
                     close_future = self.df.loc[self._hour_counter + i+1].copy()
                     close_day =  self.df.loc[self._hour_counter].copy()
                     for j in self.main_tickers:
-                        print(future_value)
-                        print(future_value[j])
-                        print(close_future.loc[ close_future["tic"] == j]["close"] )
-                        print(close_day.loc[ close_day["tic"] == j ]["close"])
-                        print( future_value[j] * ( (close_future.loc[ close_future["tic"] == j]["close"] / close_day.loc[ close_day["tic"] == j ]["close"]) -1 ))
                         future_value[j] = future_value[j] * ( (close_future.loc[ close_future["tic"] == j]["close"] / close_day.loc[ close_day["tic"] == j ]["close"]) -1 )
-                        print(future_value[j])
                         if future_value[j] is None:
                             future_value[j] = 0
                     df_historic.append(future_value)
