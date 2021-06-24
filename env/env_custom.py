@@ -70,7 +70,7 @@ class CustomTradingEnv(gym.Env):
         self._hour_counter += 1
         new_hourly_data = self._get_hourly_data()
         new_portfolio_value = self.portfolio.get_total_portfolio_value(new_hourly_data)
-        reward = self._compute_reward(prev_portfolio_value, new_portfolio_value, self.reward_type, new_hourly_data)
+        reward = self._compute_reward(prev_portfolio_value, new_portfolio_value, new_hourly_data)
 
         # Logging current allocation
         self.log_allocation_amount(new_hourly_data)
@@ -130,44 +130,56 @@ class CustomTradingEnv(gym.Env):
         portfolio_row['date'] = hourly_data.date.iloc[0]
         self._historic_allocation_values = self._historic_allocation_values.append(portfolio_row)
 
-    def _compute_reward(self, prev_portfolio_value, new_portfolio_value, reward_type, hourly_data):
+    def _compute_reward(self, prev_portfolio_value, new_portfolio_value, hourly_data):
         """
         Computes the reward accordingly to the reward type specify
         """
+        reward_type = self.reward_type
+        # We calculate just the difference of the portfolio value respect the day before.
         if reward_type == "absolute":
             reward = (new_portfolio_value - prev_portfolio_value) * self.reward_scaling
+        # We calculate how the portfolio value has change in percentage. 
         elif reward_type == "percentage":
             reward= (new_portfolio_value/prev_portfolio_value)-1 
+        # To evaluate the action we use some finantial ratios.
         elif reward_type in ["sharpe_ratio" , "sortino_ratio", "calmar_ratio"]:
-            df_historic = self._historic_allocation_values
+            # We get the values of the portfolio for the past 24 hours and the day after. 
+            window_past = min( self._historic_allocation_values.shape[0] , 24)
+            df_historic = self._historic_allocation_values.iloc[- window_past:,:]
             assets_values = {k: [v] for k, v in self.portfolio.get_assets_value(hourly_data).items()}
             portfolio_row = pd.DataFrame(assets_values)
             portfolio_row['date'] = hourly_data.date.iloc[0]
             df_historic.append(portfolio_row)
-            future_window = min(0, max(self.df.index)- self._hour_counter )
+            
+            # We simulate the next 24 hours keeping the same distribution of the portfolio. 
+            # We check that we have the future 24 hours.
+            future_window = min(24, max(self.df.index)- self._hour_counter )
             if future_window >0:
                 for i in range(future_window):
                     future_value = portfolio_row.copy()
                     close_future = self.df.loc[self._hour_counter + i+1].copy()
                     close_day =  self.df.loc[self._hour_counter].copy()
                     for j in self.main_tickers:
-                        future_value[j] = future_value[j] * ( (close_future.loc[ close_future["tic"] == j]["close"] / close_day.loc[ close_day["tic"] == j ]["close"]) -1 )
+                        money_today = future_value[j].tolist()[0]
+                        price_future = close_future[ close_future["tic"] == j]["close"].tolist()[0]
+                        price_today = close_day[close_day["tic"] == j ]["close"].tolist()[0]
+                        future_value[j] = money_today * (1+((price_future/price_today)-1))
                         if future_value[j] is None:
                             future_value[j] = 0
-                    df_historic.append(future_value)
-                
+                    df_historic = df_historic.append(future_value)
+            # If we have less then 3 values we can not calculate these indicators. 
+            
             if df_historic.shape[0] < 3:
                  reward = 0.2
             else:
                 df_money = df_historic[["cash"]+ self.main_tickers]
                 pct_change = df_money.sum(axis = 1).pct_change()
-                window = min( df_money.shape[0] , 24)
                 if reward_type == "sharpe_ratio":
-                    reward = sharpe_ratio(pct_change[-window:])
-                if reward_type == "sortino_ratio":
-                    reward = sortino_ratio(pct_change[-window:])
-                if reward_type == "calmar_ratio":
-                    reward = calmar_ratio(pct_change[-window:])
+                    reward = sharpe_ratio(pct_change[1:])
+                elif reward_type == "sortino_ratio":
+                    reward = sortino_ratio(pct_change[1:])
+                elif reward_type == "calmar_ratio":
+                    reward = calmar_ratio(pct_change[1:])
         else:
             sys.exit("Unvalid reward")
         if np.isnan(reward):

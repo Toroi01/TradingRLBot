@@ -1,8 +1,31 @@
 import numpy as np
 import pandas as pd
 from stockstats import StockDataFrame as Sdf
-
 from config import config
+import ta
+
+
+
+indicators_list = [ 
+    ('psar', ta.trend.psar_up_indicator, ['high', 'low', 'close']),
+    ('ui',ta.volatility.ulcer_index, ['close']),
+    ('atr', ta.volatility.average_true_range, ['high', 'low', 'close']),
+    ('bbw', ta.volatility.bollinger_wband, ["close"]),
+    ('bbp', ta.volatility.bollinger_pband, ['close']),
+    ('bbhi',  ta.volatility.bollinger_hband, ['close']),
+    ('bbli',  ta.volatility.bollinger_lband, ['close']),
+    ('kcp', ta.volatility.keltner_channel_hband, ['high', 'low', 'close']) ,
+    ('kchi', ta.volatility.keltner_channel_hband_indicator ,['high', 'low','close']),
+    ('kcli',ta.volatility.keltner_channel_hband, ['high', 'low', 'close']),
+    ('macd', ta.trend.macd, ['close']),
+    ('macd_diff', ta.trend.macd_diff, ['close']),
+    ('mass_index', ta.trend.mass_index, ['high', 'low']),
+    ('dpo', ta.trend.dpo, ['close']),
+    ('kst', ta.trend.kst, ['close']),
+    ('aroon_up', ta.trend.aroon_up, ['close']),
+    ('aroon_down', ta.trend.aroon_down, ['close']),
+    ('ppo', ta.momentum.ppo, ['close'])
+]
 
 
 class FeatureEngineer:
@@ -46,7 +69,7 @@ class FeatureEngineer:
 
         if self.use_technical_indicator == True:
             # add technical indicators using stockstats
-            df = self.add_technical_indicator(df)
+            df = self.add_indicators(df)
             print("Successfully added technical indicators")
 
         # add turbulence index for multiple stock
@@ -63,7 +86,26 @@ class FeatureEngineer:
         df = df.fillna(method="bfill").fillna(method="ffill")
         df = self.limit_numbers(df)
         return df
+    
+    
+    def add_indicators(self, df):
+        """This function add the indicators using the package ta"""
+        df_with_indicators = pd.DataFrame()
+        df = df.sort_values(by=['tic', 'date'])
+        indicators = self.tech_indicator_list 
+        for ticker in df.tic.unique():
+            df_temp = df[df["tic"] == ticker].copy()
+            indicators_selected = [indicator for indicator in indicators_list if indicator[0] in indicators]
+            for name, f, arg_names in indicators_selected:
+                wrapper = lambda func, args: func(*args)
+                args = [df[arg_name] for arg_name in arg_names]
+                df_temp[name] = wrapper(f, args)
+            df_temp.fillna(method='bfill', inplace=True)
+            df_with_indicators = df_with_indicators.append(df_temp)
+        return df_with_indicators
 
+    
+    # Eliminate this when we see that the new definition works
     def add_technical_indicator(self, data):
         """
         calculate technical indicators
@@ -101,8 +143,8 @@ class FeatureEngineer:
         """
 
         df = data.copy()
-        stock = Sdf.retype(df.copy())
-        unique_ticker = stock.tic.unique()
+        #stock = Sdf.retype(df.copy())
+        unique_ticker = data.tic.unique()
 
         for column in self.tech_indicator_list + ["open", "close", "high", "low"]:
             for ticker in unique_ticker:
@@ -210,22 +252,4 @@ def add_covariance(df , lookback):
     df = df.sort_values(['date','tic']).reset_index(drop=True)
     return df 
 
-    def limit_numbers(self, df):
-        """
-        Avoid having extra big and extra small numbers
-        :param df:
-        :return:
-        """
-        def to_zero(row):
-            if abs(row) < 1e-10:
-                return 0
-            elif abs(row) > 1e10:
-                return 1e10
-            else:
-                return row
-
-        for column in df.columns:
-
-            if column not in ["date", "tic"]:
-                df[column] = df[column].apply(to_zero)
-        return df
+  
