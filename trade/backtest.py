@@ -1,9 +1,8 @@
 import numpy as np
 import pandas as pd
-from pyfolio import create_full_tear_sheet
-from plotly.subplots import make_subplots
 import plotly.graph_objects as go
-from model.models import DRLAgent
+from plotly.subplots import make_subplots
+from pyfolio import create_full_tear_sheet
 
 
 class BackTest:
@@ -39,7 +38,7 @@ class BackTest:
 
     def _calculate_positions(self, df_allocation_per_tick):
         df_allocation = df_allocation_per_tick.copy().reset_index()
-        df_allocation["date"] = pd.to_datetime(df_allocation.date).dt.date # Transforming to date
+        df_allocation["date"] = pd.to_datetime(df_allocation.date).dt.date  # Transforming to date
         df_allocation["date"] = pd.to_datetime(df_allocation["date"])
         df_allocation = df_allocation.groupby("date").first()
         return df_allocation
@@ -50,7 +49,8 @@ class BackTest:
 
         # Holding different cryptos
         fig.add_trace(
-            go.Scatter(x=allocation_values.date, y=BackTest.to_cumulative(allocation_values.hourly_return), name="Strategy"),
+            go.Scatter(x=allocation_values.date, y=BackTest.to_cumulative(allocation_values.hourly_return),
+                       name="Strategy"),
             row=1, col=1
         )
         market_data = self.test_gym.df.pivot_table(index='date', columns=["tic"], values=["close"]).reset_index()
@@ -62,6 +62,33 @@ class BackTest:
                 row=1, col=1
             )
         fig.show()
+
+    def evaluate(self, allocation_values):
+        """
+        Compute metrics used to evaluate models
+        :param df: Test df
+        :return: Metrics object
+        """
+        returns = allocation_values.sum(axis=1).pct_change()
+        total_return = (returns + 1).cumprod().iloc[-1] - 1
+
+        # Sharpe and sortino are calculated at hourly level
+        sharpe = total_return / np.std(returns)
+        sortino = total_return / np.std([day_return for day_return in returns if day_return < 0])
+        max_drawdown = self.max_drawdown(returns)
+
+        return {
+            "return": total_return,
+            "sharpe": sharpe,
+            "sortino": sortino,
+            "max_drawdown": max_drawdown
+        }
+
+    def max_drawdown(self, returns):
+        returns = pd.Series(returns)
+        rolling_max = (returns + 1).cumprod().rolling(window=2400, min_periods=1).max()
+        daily_value = (returns + 1).cumprod()
+        return -(rolling_max - daily_value).max()
 
     @staticmethod
     def to_cumulative(series):
