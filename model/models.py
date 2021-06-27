@@ -75,7 +75,8 @@ class DRLAgent:
         for i in range(len(environment.df.index.unique())):
             action, _states = model.predict(test_obs)
             test_obs, rewards, dones, info = test_env.step(action)
-            if i == (len(environment.df.index.unique()) - 3):
+
+            if i == (len(environment.df.index.unique()) - 4):
                 allocations = test_env.env_method(method_name="save_asset_memory")
                 transactions = test_env.env_method(method_name="save_action_memory")
                 allocation_values = test_env.env_method(method_name="save_asset_values_memory")
@@ -107,7 +108,6 @@ class DRLAgent:
             model_kwargs["action_noise"] = NOISE[model_kwargs["action_noise"]](
                 mean=np.zeros(n_actions), sigma=0.1 * np.ones(n_actions)
             )
-        print(model_kwargs)
         model = MODELS[model_name](
             policy=policy,
             env=self.env,
@@ -145,7 +145,6 @@ class DRLEnsembleAgent:
             temp_model_kwargs["action_noise"] = NOISE[temp_model_kwargs["action_noise"]](
                 mean=np.zeros(n_actions), sigma=0.1 * np.ones(n_actions)
             )
-        print(temp_model_kwargs)
         model = MODELS[model_name](
             policy=policy,
             env=env,

@@ -38,13 +38,13 @@ class CustomTradingEnv(gym.Env):
         # Threshold from a Uniform distribution to add noise
         self.turbulence_threshold = turbulence_threshold
 
-        self.state = State(technical_indicator_list)
+        self.state = State(technical_indicator_list, all_tickers)
         self.portfolio = Portfolio(cash=initial_amount, ticker_list=self.main_tickers)
         self.action_space = spaces.Box(low=-1, high=1, shape=(len(self.main_tickers),))
         self.observation_space = spaces.Box(low=-np.inf, high=np.inf,
                                             shape=(self.state.get_size(self.main_tickers, self.all_tickers),))
 
-        self._hour_counter = -1
+        self._hour_counter = min(self.df.index)
         self._episode = 0
         self._historic_allocation_amount = pd.DataFrame()
         self._historic_allocation_values = pd.DataFrame()
@@ -84,6 +84,7 @@ class CustomTradingEnv(gym.Env):
         """
         if len(self.all_tickers) == 1:
             return self.df.iloc[self._hour_counter, :].to_frame().T
+
         return self.df.loc[self._hour_counter, :]
 
     def _do_action(self, ticker, action, hourly_data):
@@ -188,7 +189,7 @@ class CustomTradingEnv(gym.Env):
 
     def is_done(self):
         # Check if it's the last iteration
-        return self._hour_counter == len(self.df) // len(self.all_tickers) - 1
+        return self._hour_counter == max(self.df.index) - 1
 
     def reset(self):
         """
@@ -196,7 +197,7 @@ class CustomTradingEnv(gym.Env):
         :return: Initial state
         """
         self.portfolio.reset()
-        self._hour_counter = 0
+        self._hour_counter = min(self.df.index)
         hourly_data = self._get_hourly_data()
         self.state.reset()
         self.state.update(self.portfolio, hourly_data)

@@ -7,8 +7,9 @@ class State:
     - Technical indicators for all assets
     """
 
-    def __init__(self, technical_indicator_list):
+    def __init__(self, technical_indicator_list, ticker_list):
         self.technical_indicator_list = technical_indicator_list
+        self.ticker_list = ticker_list
         self.portfolio = None
         self.hourly_data = None
 
