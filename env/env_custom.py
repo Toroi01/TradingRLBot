@@ -5,18 +5,19 @@ import numpy as np
 import pandas as pd
 from gym import spaces
 from stable_baselines3.common.vec_env import DummyVecEnv
-
+import sys
 from env.portfolio import Portfolio
 from env.state import State
-
+from empyrical import sortino_ratio, calmar_ratio, sharpe_ratio
 
 class CustomTradingEnv(gym.Env):
     """A custom stock trading environment for OpenAI gym"""
     metadata = {'render.modes': ['human']}
 
     def __init__(self, df, main_tickers, all_tickers, max_assets_amount_per_trade, technical_indicator_list,
-                 initial_amount,
-                 turbulence_threshold=None, reward_scaling=1, comission_value=None, transaction_price_threshold=None):
+                 initial_amount, reward_type = "absolute", reward_scaling=1,
+                 turbulence_threshold=None,  comission_value=None, transaction_price_threshold=None
+                ):
         # In each step, the maximum number of assets per ticker is limited to a value
         self.max_assets_amount_per_trade = max_assets_amount_per_trade
         # String list with the ticker names that we want to buy and sell
@@ -28,6 +29,8 @@ class CustomTradingEnv(gym.Env):
         self.all_tickers = all_tickers
         # Filter df with selected tickers
         self.df = df[df.tic.isin(self.all_tickers)]
+        # Hyperparam value to decide the type of rewards
+        self.reward_type = reward_type
         # Hyperparam value to multiply rewards
         self.reward_scaling = reward_scaling
         # Value between 0 and 1 that will represent the comission
@@ -67,12 +70,11 @@ class CustomTradingEnv(gym.Env):
         self._hour_counter += 1
         new_hourly_data = self._get_hourly_data()
         new_portfolio_value = self.portfolio.get_total_portfolio_value(new_hourly_data)
-        reward = self._compute_reward(prev_portfolio_value, new_portfolio_value)
+        reward = self._compute_reward(prev_portfolio_value, new_portfolio_value, new_hourly_data)
 
         # Logging current allocation
         self.log_allocation_amount(new_hourly_data)
         self.log_allocation_values(new_hourly_data)
-
         return self.state.values(), reward, self.is_done(), {}
 
     def _get_hourly_data(self):
@@ -128,14 +130,61 @@ class CustomTradingEnv(gym.Env):
         portfolio_row['date'] = hourly_data.date.iloc[0]
         self._historic_allocation_values = self._historic_allocation_values.append(portfolio_row)
 
-    def _compute_reward(self, prev_portfolio_value, new_portfolio_value):
+    def _compute_reward(self, prev_portfolio_value, new_portfolio_value, hourly_data):
         """
-        Computes difference in dollars between the portfolios before and after the step.
-        Multiplies the profit by a scaling factor to be defined.
-        :return: Profit scaled by reward_scaling
+        Computes the reward accordingly to the reward type specify
         """
-        profit = new_portfolio_value - prev_portfolio_value
-        return profit * self.reward_scaling
+        reward_type = self.reward_type
+        # We calculate just the difference of the portfolio value respect the day before.
+        if reward_type == "absolute":
+            reward = (new_portfolio_value - prev_portfolio_value) * self.reward_scaling
+        # We calculate how the portfolio value has change in percentage. 
+        elif reward_type == "percentage":
+            reward= (new_portfolio_value/prev_portfolio_value)-1 
+        # To evaluate the action we use some finantial ratios.
+        elif reward_type in ["sharpe_ratio" , "sortino_ratio", "calmar_ratio"]:
+            # We get the values of the portfolio for the past 24 hours and the day after. 
+            window_past = min( self._historic_allocation_values.shape[0] , 24)
+            df_historic = self._historic_allocation_values.iloc[- window_past:,:]
+            assets_values = {k: [v] for k, v in self.portfolio.get_assets_value(hourly_data).items()}
+            portfolio_row = pd.DataFrame(assets_values)
+            portfolio_row['date'] = hourly_data.date.iloc[0]
+            df_historic.append(portfolio_row)
+            
+            # We simulate the next 24 hours keeping the same distribution of the portfolio. 
+            # We check that we have the future 24 hours.
+            future_window = min(24, max(self.df.index)- self._hour_counter )
+            if future_window >0:
+                for i in range(future_window):
+                    future_value = portfolio_row.copy()
+                    close_future = self.df.loc[self._hour_counter + i+1].copy()
+                    close_day =  self.df.loc[self._hour_counter].copy()
+                    for j in self.main_tickers:
+                        money_today = future_value[j].tolist()[0]
+                        price_future = close_future[ close_future["tic"] == j]["close"].tolist()[0]
+                        price_today = close_day[close_day["tic"] == j ]["close"].tolist()[0]
+                        future_value[j] = money_today * (1+((price_future/price_today)-1))
+                        if future_value[j] is None:
+                            future_value[j] = 0
+                    df_historic = df_historic.append(future_value)
+            # If we have less then 3 values we can not calculate these indicators. 
+            
+            if df_historic.shape[0] < 3:
+                 reward = 0.2
+            else:
+                df_money = df_historic[["cash"]+ self.main_tickers]
+                pct_change = df_money.sum(axis = 1).pct_change()
+                if reward_type == "sharpe_ratio":
+                    reward = sharpe_ratio(pct_change[1:])
+                elif reward_type == "sortino_ratio":
+                    reward = sortino_ratio(pct_change[1:])
+                elif reward_type == "calmar_ratio":
+                    reward = calmar_ratio(pct_change[1:])
+        else:
+            sys.exit("Unvalid reward")
+        if np.isnan(reward):
+                reward = 0
+        return reward
 
     def is_done(self):
         # Check if it's the last iteration

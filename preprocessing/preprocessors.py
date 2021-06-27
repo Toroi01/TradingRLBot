@@ -1,8 +1,31 @@
 import numpy as np
 import pandas as pd
 from stockstats import StockDataFrame as Sdf
-
 from config import config
+import ta
+
+
+
+indicators_list = [ 
+    ('psar', ta.trend.psar_up_indicator, ['high', 'low', 'close']),
+    ('ui',ta.volatility.ulcer_index, ['close']),
+    ('atr', ta.volatility.average_true_range, ['high', 'low', 'close']),
+    ('bbw', ta.volatility.bollinger_wband, ["close"]),
+    ('bbp', ta.volatility.bollinger_pband, ['close']),
+    ('bbhi',  ta.volatility.bollinger_hband, ['close']),
+    ('bbli',  ta.volatility.bollinger_lband, ['close']),
+    ('kcp', ta.volatility.keltner_channel_hband, ['high', 'low', 'close']) ,
+    ('kchi', ta.volatility.keltner_channel_hband_indicator ,['high', 'low','close']),
+    ('kcli',ta.volatility.keltner_channel_hband, ['high', 'low', 'close']),
+    ('macd', ta.trend.macd, ['close']),
+    ('macd_diff', ta.trend.macd_diff, ['close']),
+    ('mass_index', ta.trend.mass_index, ['high', 'low']),
+    ('dpo', ta.trend.dpo, ['close']),
+    ('kst', ta.trend.kst, ['close']),
+    ('aroon_up', ta.trend.aroon_up, ['close']),
+    ('aroon_down', ta.trend.aroon_down, ['close']),
+    ('ppo', ta.momentum.ppo, ['close'])
+]
 
 
 class FeatureEngineer:
@@ -46,7 +69,7 @@ class FeatureEngineer:
 
         if self.use_technical_indicator == True:
             # add technical indicators using stockstats
-            df = self.add_technical_indicator(df)
+            df = self.add_indicators(df)
             print("Successfully added technical indicators")
 
         # add turbulence index for multiple stock
@@ -63,7 +86,26 @@ class FeatureEngineer:
         df = df.fillna(method="bfill").fillna(method="ffill")
         df = self.limit_numbers(df)
         return df
+    
+    
+    def add_indicators(self, df):
+        """This function add the indicators using the package ta"""
+        df_with_indicators = pd.DataFrame()
+        df = df.sort_values(by=['tic', 'date'])
+        indicators = self.tech_indicator_list 
+        for ticker in df.tic.unique():
+            df_temp = df[df["tic"] == ticker].copy()
+            indicators_selected = [indicator for indicator in indicators_list if indicator[0] in indicators]
+            for name, f, arg_names in indicators_selected:
+                wrapper = lambda func, args: func(*args)
+                args = [df[arg_name] for arg_name in arg_names]
+                df_temp[name] = wrapper(f, args)
+            df_temp.fillna(method='bfill', inplace=True)
+            df_with_indicators = df_with_indicators.append(df_temp)
+        return df_with_indicators
 
+    
+    # Eliminate this when we see that the new definition works
     def add_technical_indicator(self, data):
         """
         calculate technical indicators
@@ -101,8 +143,8 @@ class FeatureEngineer:
         """
 
         df = data.copy()
-        stock = Sdf.retype(df.copy())
-        unique_ticker = stock.tic.unique()
+        #stock = Sdf.retype(df.copy())
+        unique_ticker = data.tic.unique()
 
         for column in self.tech_indicator_list + ["open", "close", "high", "low"]:
             for ticker in unique_ticker:
@@ -165,7 +207,7 @@ class FeatureEngineer:
             {"date": df_price_pivot.index, "turbulence": turbulence_index}
         )
         return turbulence_index
-
+    
     def limit_numbers(self, df):
         """
         Avoid having extra big and extra small numbers
@@ -185,3 +227,29 @@ class FeatureEngineer:
             if column not in ["date", "tic"]:
                 df[column] = df[column].apply(to_zero)
         return df
+
+
+def add_covariance(df , lookback):
+    """This function return the dataframe with the followings modifications:
+    - An extra columns with the covariance matrix calculated consider the previous amout of hours as specify in the lookback
+    - The dataframe is order for hour and crypto and the index represent the timestamp
+    - We have eliminat the first n observations where n=lookback
+    """
+    df=df.sort_values(['date','tic'],ignore_index=True)
+    df.index = df.date.factorize()[0]
+    cov_list = []
+    # look back is six months
+    lookback=4320
+    for i in range(lookback,len(df.index.unique())):
+        data_lookback = df.loc[i-lookback:i,:]
+        price_lookback=data_lookback.pivot_table(index = 'date',columns = 'tic', values = 'close')
+        return_lookback = price_lookback.pct_change().dropna()
+        covs = return_lookback.cov().values 
+        cov_list.append(covs)
+    # We add the covariance metrices and we eliminate the first 6 month of training since we can not use them 
+    df_cov = pd.DataFrame({'date':df.date.unique()[lookback:],'cov_list':cov_list})
+    df = df.merge(df_cov, on='date')
+    df = df.sort_values(['date','tic']).reset_index(drop=True)
+    return df 
+
+  

@@ -9,7 +9,28 @@ START_DATE = "2020-01-01"
 START_TEST_DATE = "2021-01-01"
 END_DATE = "2021-04-21"
 
-TECHNICAL_INDICATORS_LIST = ["macd",
+
+TECHNICAL_INDICATORS_LIST = ['psar', 
+                             'ui', 
+                             'atr', 
+                             'bbw',
+                             'bbp', 
+                             'bbhi',
+                             'bbli',
+                             'kcp',
+                             'kchi',
+                             'kcli',
+                             'macd', 
+                             'macd_diff',
+                             'mass_index',
+                             'dpo',
+                             'kst',
+                             'aroon_up',
+                             'aroon_down',
+                             'ppo']
+
+
+TECHNICAL_INDICATORS_LIST2 = ["macd",
                              "boll_ub",
                              "boll_lb",
                              "rsi_24",
