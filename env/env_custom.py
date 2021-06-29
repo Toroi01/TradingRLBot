@@ -16,7 +16,7 @@ class CustomTradingEnv(gym.Env):
 
     def __init__(self, df, main_tickers, all_tickers, max_assets_amount_per_trade, technical_indicator_list,
                  initial_amount, reward_type = "absolute", reward_scaling=1,
-                 turbulence_threshold=None,  comission_value=None, transaction_price_threshold=None
+                 turbulence_threshold=None,  comission_value=None, transaction_price_threshold=None, discrete_actionspace=False
                 ):
         # In each step, the maximum number of assets per ticker is limited to a value
         self.max_assets_amount_per_trade = max_assets_amount_per_trade
@@ -37,11 +37,17 @@ class CustomTradingEnv(gym.Env):
         self.comission_value = comission_value
         # Threshold from a Uniform distribution to add noise
         self.turbulence_threshold = turbulence_threshold
+        self.discrete_actionspace = discrete_actionspace
 
         self.state = State(technical_indicator_list)
         self.portfolio = Portfolio(cash=initial_amount, ticker_list=self.main_tickers)
-        self.action_space = spaces.Box(low=-1, high=1, shape=(len(self.main_tickers),))
-        self.observation_space = spaces.Box(low=-np.inf, high=np.inf,
+        if self.discrete_actionspace==False:
+            self.action_space = spaces.Box(low=-1, high=1, shape=(len(self.main_tickers),))
+            self.observation_space = spaces.Box(low=-np.inf, high=np.inf,
+                                            shape=(self.state.get_size(self.main_tickers, self.all_tickers),))
+        else:
+            self.action_space = spaces.Discrete(3)
+            self.observation_space = spaces.Box(low=-np.inf, high=np.inf,
                                             shape=(self.state.get_size(self.main_tickers, self.all_tickers),))
 
         self._hour_counter = -1
@@ -58,6 +64,10 @@ class CustomTradingEnv(gym.Env):
         # Update the hourly data and calcula the current portfolio value
         hourly_data = self._get_hourly_data()
         prev_portfolio_value = self.portfolio.get_total_portfolio_value(hourly_data)
+
+        #In case of discrete actions space, convert actions to list
+        if self.discrete_actionspace == True:
+            actions = np.array([actions])
 
         # Buy, sell or hold
         for ticker, action in zip(self.main_tickers, actions):
