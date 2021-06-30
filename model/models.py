@@ -96,6 +96,8 @@ class DRLAgent:
         policy_kwargs=None,
         model_kwargs=None,
         verbose=1,
+        tensorboard_log=None,
+
     ):
         if model_name not in MODELS:
             raise NotImplementedError("NotImplementedError")
@@ -111,15 +113,15 @@ class DRLAgent:
         model = MODELS[model_name](
             policy=policy,
             env=self.env,
-            tensorboard_log=f"{config.TENSORBOARD_LOG_DIR}/{model_name}",
+            tensorboard_log=tensorboard_log,
             verbose=verbose,
             policy_kwargs=policy_kwargs,
             **model_kwargs,
         )
         return model
 
-    def train_model(self, model, tb_log_name, total_timesteps=5000):
-        model = model.learn(total_timesteps=total_timesteps, tb_log_name=tb_log_name)
+    def train_model(self, model, tb_log_name, total_timesteps=5000, callback=[]):
+        model = model.learn(total_timesteps=total_timesteps, tb_log_name=tb_log_name, callback=callback)
         return model
 
 

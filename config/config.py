@@ -1,7 +1,7 @@
 DATA_SAVE_DIR = f"./dataset/crypto_dataset_binance"
 DATA_GRANULARITY = "1h"
 TRAINED_MODEL_DIR = f"./trained_models"
-TENSORBOARD_LOG_DIR = f"./tensorboard_log"
+TENSORBOARD_LOG_DIR = f"./tensorboard_log_from_main"
 RESULTS_DIR = f"./results"
 
 ## time_fmt = '%Y-%m-%d'
