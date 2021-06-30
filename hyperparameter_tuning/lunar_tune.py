@@ -47,7 +47,6 @@ video_length = 3000
 
 datetime = dt_string = datetime.now().strftime("%H_%M_%S")
 logs_base_dir = f"./log/{dt_string}"
-log_optuna = f"{logs_base_dir}/log_optuna"
 log_tensorboard = f"{logs_base_dir}/log_tensorboard"
 
 
@@ -101,6 +100,14 @@ def objective(trial):
     activation_fn = {"tanh": nn.Tanh, "relu": nn.ReLU,
                      "elu": nn.ELU, "leaky_relu": nn.LeakyReLU}[activation_fn]
 
+
+    #Create the policy_kwargs
+    #Create the model_kwargs 
+    #Create the callback
+
+    #Store the policy_kwargs into log_tensorboard
+    #Store the model_kwargs into log_tensorboard
+    
     model = PPO(
         MlpPolicy,
         env,
