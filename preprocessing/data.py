@@ -20,10 +20,13 @@ def data_split(df, start, end):
     :return: (df) pandas dataframe
     """
     data = df[(df.date >= start) & (df.date < end)]
-    data = data.sort_values(["date", "tic"], ignore_index=True)
-    data.index = data.date.factorize()[0]
-    return data
+    return format_for_env(data)
 
+
+def format_for_env(df):
+    df = df.sort_values(["date", "tic"], ignore_index=True)
+    df.index = df.date.factorize()[0]
+    return df
 
 def convert_to_datetime(time):
     time_fmt = "%Y-%m-%dT%H:%M:%S"
