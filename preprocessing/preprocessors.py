@@ -257,7 +257,6 @@ class FeatureEngineer:
             for j in range(df.tic.nunique()):
                 cov_columns.append(f"cov_{i}_{j}")
         df[cov_columns] = df.cov_list.apply(lambda x: x.flatten()).apply(pd.Series)
-
         selected_cov_columns = []
         for i in range(df.tic.nunique()):
             for j in range(i, df.tic.nunique()):
@@ -266,5 +265,4 @@ class FeatureEngineer:
         cov_to_remove = list(set(cov_columns) - set(selected_cov_columns))
         df.drop(cov_to_remove, axis=1, inplace=True)
         df.drop("cov_list", axis=1, inplace=True)
-
         return df
