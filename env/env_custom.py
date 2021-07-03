@@ -115,7 +115,7 @@ class CustomTradingEnv(gym.Env):
             self._sell_stock(ticker, amount, asset_price, timestamp)
 
     def _sell_stock(self, ticker, amount, price, timestamp):
-        self.portfolio.sell(ticker, - amount, price, timestamp, comission_value=self.comission_value)
+        self.portfolio.sell(ticker, -amount, price, timestamp, comission_value=self.comission_value)
 
     def _buy_stock(self, ticker, amount, price, timestamp):
         self.portfolio.buy(ticker, amount, price, timestamp, comission_value=self.comission_value)
