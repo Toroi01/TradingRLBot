@@ -51,13 +51,15 @@ class FeatureEngineer:
     def __init__(
             self,
             use_technical_indicator=True,
-            tech_indicator_list=config.TECHNICAL_INDICATORS_LIST,
+            tech_indicator_shortperiod=config.TECHNICAL_INDICATORS_SHORTPERIOD,
+            tech_indicator_longperiod=config.TECHNICAL_INDICATORS_LONGPERIOD,
             use_turbulence=False,
             use_covariance=True,
             user_defined_feature=False,
     ):
         self.use_technical_indicator = use_technical_indicator
-        self.tech_indicator_list = tech_indicator_list
+        self.tech_indicator_shortperiod =  tech_indicator_shortperiod
+        self.tech_indicator_longperiod = tech_indicator_longperiod
         self.use_turbulence = use_turbulence
         self.user_defined_feature = user_defined_feature
         self.use_covariance = use_covariance
@@ -70,7 +72,8 @@ class FeatureEngineer:
 
         if self.use_technical_indicator == True:
             # add technical indicators using stockstats
-            df = self.add_indicators(df)
+            df = self.add_technical_indicators_shortperiod(df)
+            df = self.add_technical_indicators_longperiod(df)
             print("Successfully added technical indicators")
 
         # add turbulence index for multiple stock
@@ -91,11 +94,11 @@ class FeatureEngineer:
             df = self.add_covariance(df)
         return df
 
-    def add_indicators(self, df):
+    def add_technical_indicators_shortperiod(self, df):
         """This function add the indicators using the package ta"""
         df_with_indicators = pd.DataFrame()
         df = df.sort_values(by=['tic', 'date'])
-        indicators = self.tech_indicator_list
+        indicators = self.tech_indicator_shortperiod
         for ticker in df.tic.unique():
             df_temp = df[df["tic"] == ticker].copy()
             indicators_selected = [indicator for indicator in indicators_list if indicator[0] in indicators]
@@ -108,7 +111,7 @@ class FeatureEngineer:
         return df_with_indicators
 
     # Eliminate this when we see that the new definition works
-    def add_technical_indicator(self, data):
+    def add_technical_indicators_longperiod(self, data):
         """
         calculate technical indicators
         use stockstats package to add technical inidactors
@@ -120,7 +123,7 @@ class FeatureEngineer:
         stock = Sdf.retype(df.copy())
         unique_ticker = stock.tic.unique()
 
-        for indicator in self.tech_indicator_list:
+        for indicator in self.tech_indicator_longperiod:
             indicator_df = pd.DataFrame()
             for i in range(len(unique_ticker)):
                 try:
@@ -148,7 +151,7 @@ class FeatureEngineer:
         # stock = Sdf.retype(df.copy())
         unique_ticker = data.tic.unique()
 
-        for column in self.tech_indicator_list + ["open", "close", "high", "low"]:
+        for column in self.tech_indicator_longperiod + self.tech_indicator_shortperiod + ["open", "close", "high", "low"]:
             for ticker in unique_ticker:
                 df.loc[df.tic == ticker, f"{column}_diff"] = df.loc[df.tic == ticker, column].pct_change()
         return df
@@ -231,7 +234,7 @@ class FeatureEngineer:
                 df[column] = df[column].apply(to_zero)
         return df
 
-    def add_covariance(self, df, lookback=4320):
+    def add_covariance(self, df, lookback= 24 * 30):
         """This function return the dataframe with the followings modifications:
         - An extra columns with the covariance matrix calculated consider the previous amout of hours as specify in the lookback
         - The dataframe is order for hour and crypto and the index represent the timestamp
@@ -257,7 +260,6 @@ class FeatureEngineer:
             for j in range(df.tic.nunique()):
                 cov_columns.append(f"cov_{i}_{j}")
         df[cov_columns] = df.cov_list.apply(lambda x: x.flatten()).apply(pd.Series)
-
         selected_cov_columns = []
         for i in range(df.tic.nunique()):
             for j in range(i, df.tic.nunique()):
@@ -266,5 +268,4 @@ class FeatureEngineer:
         cov_to_remove = list(set(cov_columns) - set(selected_cov_columns))
         df.drop(cov_to_remove, axis=1, inplace=True)
         df.drop("cov_list", axis=1, inplace=True)
-
         return df

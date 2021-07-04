@@ -9,42 +9,41 @@ START_DATE = "2020-01-01"
 START_TEST_DATE = "2021-01-01"
 END_DATE = "2021-07-01"
 
+# This indicators describe what is appening during the day (up to 20 hours before)
+TECHNICAL_INDICATORS_SHORTPERIOD = [
+                                     'psar', 
+                                     'ui', 
+                                     'atr', 
+                                     'bbw',
+                                     'bbp', 
+                                     'bbhi',
+                                     'bbli',
+                                     'kcp',
+                                     'kchi',
+                                     'kcli',
+                                     'macd', 
+                                     'macd_diff',
+                                     'mass_index',
+                                     'dpo',
+                                     'kst',
+                                     'aroon_up',
+                                     'aroon_down',
+                                     'ppo']
 
-TECHNICAL_INDICATORS_LIST = ['psar', 
-                             'ui', 
-                             'atr', 
-                             'bbw',
-                             'bbp', 
-                             'bbhi',
-                             'bbli',
-                             'kcp',
-                             'kchi',
-                             'kcli',
-                             'macd', 
-                             'macd_diff',
-                             'mass_index',
-                             'dpo',
-                             'kst',
-                             'aroon_up',
-                             'aroon_down',
-                             'ppo']
-
-
-TECHNICAL_INDICATORS_LIST2 = ["macd",
-                             "boll_ub",
-                             "boll_lb",
-                             "rsi_24",
-                             "rsi_168",
-                             "rsi_720",
-                             "cci_24",
-                             "cci_168",
-                             "cci_720",
-                             "dx_24",
-                             "dx_168",
-                             "dx_720",
-                             "close_24_sma",
-                             "close_168_sma",
-                             "close_720_sma"]
+# This indicators describe what happen in the days before up to a month
+TECHNICAL_INDICATORS_LONGPERIOD = [
+                                     "rsi_24",
+                                     "rsi_168",
+                                     "rsi_720",
+                                     "cci_24",
+                                     "cci_168",
+                                     "cci_720",
+                                     "dx_24",
+                                     "dx_168",
+                                     "dx_720",
+                                     "close_24_sma",
+                                     "close_168_sma",
+                                     "close_720_sma"]
 
 SINGLE_TICKER = ['BTC']
 
