@@ -1,1 +1,0 @@
-{"batch_size": 256, "n_steps": 1024, "gamma": 0.995, "lr": 0.00039156236754308654, "ent_coef": 1.0736445050190376e-07, "clip_range": 0.2, "n_epochs": 10, "gae_lambda": 0.99, "max_grad_norm": 0.8, "vf_coef": 0.9614023306316212, "net_arch": "small", "log_std_init": 0.12313231275802927, "sde_sample_freq": -1, "ortho_init": true, "activation_fn": "elu"}

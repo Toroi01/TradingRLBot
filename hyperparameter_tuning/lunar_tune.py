@@ -102,7 +102,7 @@ def objective(trial):
 
 
     #Create the policy_kwargs
-    #Create the model_kwargs 
+    #Create the model_params where its included policy_kwargs 
     #Create the callback
 
     #Store the policy_kwargs into log_tensorboard
