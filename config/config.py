@@ -1,8 +1,13 @@
-DATA_SAVE_DIR = f"./dataset/crypto_dataset_binance"
+from os.path import dirname, abspath
+ROOT_DIR = dirname(dirname(abspath(__file__))) 
+
+
+DATA_SAVE_DIR = f"{ROOT_DIR}/dataset/crypto_dataset_binance"
 DATA_GRANULARITY = "1h"
-TRAINED_MODEL_DIR = f"./trained_models"
-TENSORBOARD_LOG_DIR = f"./tensorboard_log_from_main"
-RESULTS_DIR = f"./results"
+TRAINED_MODEL_DIR = f"{ROOT_DIR}/trained_models"
+TENSORBOARD_LOG_DIR = f"{ROOT_DIR}/tensorboard_log_from_main"
+RESULTS_DIR = f"{ROOT_DIR}/results"
+
 
 ## time_fmt = '%Y-%m-%d'
 START_DATE = "2020-01-01"
