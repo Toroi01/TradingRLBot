@@ -11,7 +11,7 @@ averaged.
 
 
 class TimeSeriesValidation:
-    def __init__(self, num_splits, test_proportion=0.2, gap_proportion=0.05, total_timesteps_model=10000,
+    def __init__(self, num_splits=5, test_proportion=0.2, gap_proportion=0.05, total_timesteps_model=10000,
                  with_graphs=True):
         self.num_splits = num_splits
         self.test_proportion = test_proportion

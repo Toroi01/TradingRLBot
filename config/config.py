@@ -7,7 +7,7 @@ RESULTS_DIR = f"./results"
 ## time_fmt = '%Y-%m-%d'
 START_DATE = "2020-01-01"
 START_TEST_DATE = "2021-01-01"
-END_DATE = "2021-06-01"
+END_DATE = "2021-07-01"
 
 
 TECHNICAL_INDICATORS_LIST = ['psar', 
