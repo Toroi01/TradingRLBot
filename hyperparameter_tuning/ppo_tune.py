@@ -28,6 +28,3 @@ class PPO_tune(Tune):
 		self.save_hyperparameters_metrics(trial_number=trial.number, hyperparameters=PPO_PARAMS, metrics=metrics)
 
 		return metrics['sharpe']
-
-tune = PPO_tune(2,1e4)
-tune.run_study()
