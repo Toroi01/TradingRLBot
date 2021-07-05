@@ -3,6 +3,7 @@ from model.models import DRLAgent
 from preprocessing.data import format_for_env
 from trade.backtest import BackTest
 
+
 """
 Class to perform time series validation. 
 Splits dataset in num_splits, training and testing sequentially. Metrics are computed for each subset and then
@@ -36,12 +37,12 @@ class TimeSeriesValidation:
 
         return train, test
 
-    def run(self, df, env_params, model_name, model_params):
+    def run(self, df, env_params, model_name, model_params, log_tensorboard=None, tb_log_name="tb_log_name"):
         total_results = []
         df = format_for_env(df)
         for n in range(self.num_splits):
             train, test = self.next_part(df, n)
-            model = self.train_model(train, env_params, model_name, model_params)
+            model = self.train_model(train, env_params, model_name, model_params, log_tensorboard, tb_log_name)
             print("Metrics training")
             _ = self.test_model(train, env_params, model)
             print("Metrics testing")
@@ -53,15 +54,15 @@ class TimeSeriesValidation:
             summary[metric] = sum(d[metric] for d in total_results) / len(total_results)
         return summary
 
-    def train_model(self, train, env_params, model_name, model_params):
+    def train_model(self, train, env_params, model_name, model_params, log_tensorboard=None, tb_log_name="tb_log_name"):
         env_train_gym = CustomTradingEnv(df=train, **env_params)
         env_train, _ = env_train_gym.get_sb_env()
         print(f"Train from [{train['date'].iloc[0]}] to [{train['date'].iloc[-1]}]")
 
         agent = DRLAgent(env=env_train)
-        model = agent.get_model(model_name=model_name, model_kwargs=model_params)
+        model = agent.get_model(model_name=model_name, model_kwargs=model_params, tensorboard_log=log_tensorboard)
         return agent.train_model(model=model,
-                                 tb_log_name=model_name,
+                                 tb_log_name=tb_log_name,
                                  total_timesteps=self.total_timesteps_model)
 
     def test_model(self, test, env_params, model):

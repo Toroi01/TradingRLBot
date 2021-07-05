@@ -1,22 +1,30 @@
+from hyperparameter_tuning.tune import Tune
 
-from config import config
-from trade.time_series_validation import TimeSeriesValidation
+class PPO_tune(Tune):
+	def __init__(self, n_trials, total_timesteps_model):
+		super().__init__("ppo", n_trials, total_timesteps_model)
 
+	def objective(self, trial):
+		n_steps = trial.suggest_categorical("n_steps", [256, 512, 1024, 2048, 4096])
+		ent_coef = trial.suggest_loguniform("ent_coef", 0.00000001, 0.1)
+		learning_rate = trial.suggest_loguniform("lr", 2e-4, 6e-4)
 
-data_downloader = CryptoDownloader_binance(config.START_DATE, config.END_DATE, config.MULTIPLE_TICKER_8, config.DATA_SAVE_DIR, config.DATA_GRANULARITY)
-if download_data:    
-    data_downloader.download_data()
-df = data_downloader.load()
+		PPO_PARAMS = {
+			"n_steps": n_steps,
+			"ent_coef": ent_coef,
+			"learning_rate": learning_rate,
+		}
 
+		#Get the model
+		model = self.get_model(hyperparameters=PPO_PARAMS)
 
+		#Train the model
+		model_trained = self.train_model(model=model, trial_number=trial.number)
 
-#df
+		#Evaluate the model
+		metrics = self.test_model(model_trained)
 
-#env_params
+		#Save hyperparameters with evaluation metrics
+		self.save_hyperparameters_metrics(trial_number=trial.number, hyperparameters=PPO_PARAMS, metrics=metrics)
 
-#model_name
-
-#model_params
-#self, df, env_params, model_name, model_params
-tsv = TimeSeriesValidation()
-tsv.run()
+		return metrics['sharpe']

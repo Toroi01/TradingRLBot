@@ -1,13 +1,31 @@
-DATA_SAVE_DIR = f"./dataset/crypto_dataset_binance"
+from os.path import dirname, abspath
+ROOT_DIR = dirname(dirname(abspath(__file__))) 
+
+
+DATA_SAVE_DIR = f"{ROOT_DIR}/dataset/crypto_dataset_binance"
 DATA_GRANULARITY = "1h"
-TRAINED_MODEL_DIR = f"./trained_models"
-TENSORBOARD_LOG_DIR = f"./tensorboard_log_from_main"
-RESULTS_DIR = f"./results"
+TRAINED_MODEL_DIR = f"{ROOT_DIR}/trained_models"
+TENSORBOARD_LOG_DIR = f"{ROOT_DIR}/tensorboard_log_from_main"
+RESULTS_DIR = f"{ROOT_DIR}/results"
+
+LOG_DIR_HYPERPARAMETER_TUNING =f"{ROOT_DIR}/hyperparameter_tuning/log"
+
 
 ## time_fmt = '%Y-%m-%d'
 START_DATE = "2020-01-01"
 START_TEST_DATE = "2021-01-01"
 END_DATE = "2021-07-01"
+
+
+HT_START_TRAIN_DATE = "2021-01-01"
+HT_END_TRAIN_DATE = "2021-06-01"
+
+HT_START_TEST_DATE = "2021-06-01"
+HT_END_TEST_DATE = "2021-07-01"
+
+PREPROCESSED_DF_NAME = "preprocess_df.pkl"
+
+
 
 # This indicators describe what is appening during the day (up to 20 hours before)
 TECHNICAL_INDICATORS_SHORTPERIOD = [
@@ -30,6 +48,7 @@ TECHNICAL_INDICATORS_SHORTPERIOD = [
                                      'aroon_down',
                                      'ppo']
 
+
 # This indicators describe what happen in the days before up to a month
 TECHNICAL_INDICATORS_LONGPERIOD = [
                                      "rsi_24",
@@ -51,6 +70,8 @@ TWO_TICKER = ['BTC', 'ETH']
 
 MULTIPLE_TICKER_8 = ["BTC", "ETH", "BNB", "ADA", "XRP", "DOGE", "LINK", "LTC"]
 
+ACTUAL_TICKERS = MULTIPLE_TICKER_8
+
 ## Model Parameters
 A2C_PARAMS = {"n_steps": 5, "ent_coef": 0.01, "learning_rate": 0.0007}
 PPO_PARAMS = {
@@ -70,6 +91,3 @@ SAC_PARAMS = {
     "ent_coef": "auto_0.1",
 }
 
-########################################################
-############## Stock Ticker Setup starts ##############
-SINGLE_TICKER = ["BTC"]
