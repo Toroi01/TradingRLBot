@@ -6,6 +6,7 @@ dataset/crypto_dataset/*
 
 # To keep the empty folders
 !dataset/crypto_dataset/.gitkeep
+!dataset/crypto_dataset_binance/.gitkeep
 !hyperparameter_tuning/log/.gitkeep
 
 # remove DS_Store
