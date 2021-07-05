@@ -21,6 +21,8 @@ from config import config
 from preprocessing.data import data_split
 from env.env_stocktrading import StockTradingEnv
 
+from stable_baselines3 import DQN
+from stable_baselines3.dqn.policies import MlpPolicy
 from stable_baselines3 import A2C
 from stable_baselines3 import PPO
 from stable_baselines3 import TD3
@@ -33,7 +35,7 @@ from stable_baselines3.common.noise import (
 from stable_baselines3 import SAC
 
 
-MODELS = {"a2c": A2C, "ddpg": DDPG, "td3": TD3, "sac": SAC, "ppo": PPO}
+MODELS = {"a2c": A2C, "ddpg": DDPG, "td3": TD3, "sac": SAC, "ppo": PPO, "dqn": DQN}
 
 MODEL_KWARGS = {x: config.__dict__[f"{x.upper()}_PARAMS"] for x in MODELS.keys()}
 
