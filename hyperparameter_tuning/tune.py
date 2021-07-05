@@ -62,7 +62,7 @@ class Tune():
 			return df
 
 	def get_env(self, start_date, end_date):
-		features = config.TECHNICAL_INDICATORS_LIST + ["open", "close", 'high', 'low']
+		features =  config.TECHNICAL_INDICATORS_SHORTPERIOD + config.TECHNICAL_INDICATORS_LONGPERIOD  + ["open", "close", 'high', 'low']
 		features += [f"{feature}_diff" for feature in features]
 		features += [feature for feature in self.df.columns if feature.startswith("cov_")]
 		env_kwargs = {
