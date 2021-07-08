@@ -9,6 +9,7 @@ dataset/crypto_dataset/*
 !dataset/crypto_dataset_binance/.gitkeep
 !hyperparameter_tuning/log/.gitkeep
 !logs/.gitkeep
+!data/.gitkeep
 
 # remove DS_Store
 **/.DS_Store
