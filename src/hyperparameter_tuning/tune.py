@@ -26,12 +26,9 @@ class Tune:
         self.study_name = f"{timestamp}_{model_name}"
 
     def save_hyperparameters_metrics(self, trial_number, hyperparameters, metrics):
-        _return = metrics["return"]
-        _sharpe = metrics["sharpe"]
-
         if not os.path.exists(self.logs_base_dir):
             os.makedirs(self.logs_base_dir)
-
+        hyperparameters.update(metrics)
         with open(f"{self.logs_base_dir}/trial_{trial_number}_{self.model_name}.pkl",
                   'wb') as fp:
             pickle.dump(hyperparameters, fp, protocol=pickle.HIGHEST_PROTOCOL)

@@ -15,15 +15,15 @@ if __name__ == '__main__':
         "main_tickers": config.MULTIPLE_TICKER_8,
         "all_tickers": config.MULTIPLE_TICKER_8,
         "reward_type": "percentage",
-        "discrete_actionspace": True,
+        "discrete_actionspace": False,
         "comission_value": 0.01
     }
 
-    model_name = "dqn"
+    model_name = "ppo"
 
     tsv_params = {
         "num_splits": 3,
-        "total_timesteps_model": 100000,
+        "total_timesteps_model": 1000,
         "with_graphs": False
     }
 
