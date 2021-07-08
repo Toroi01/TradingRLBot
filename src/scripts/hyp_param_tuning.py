@@ -23,7 +23,7 @@ if __name__ == '__main__':
 
     tsv_params = {
         "num_splits": 3,
-        "total_timesteps_model": 1000,
+        "total_timesteps_model": 100000,
         "with_graphs": False
     }
 

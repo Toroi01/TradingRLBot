@@ -7,11 +7,11 @@ class DQNTune(Tune):
         super().__init__("dqn", n_trials, env_params, tsv_params, start_date, end_date)
 
     def objective(self, trial):
-        gamma = trial.suggest_loguniform("discount", 0.1, 0.99)
+        gamma = trial.suggest_loguniform("gamma", 0.9, 0.9999)
         tau = trial.suggest_loguniform("tau", 0.001, 0.1)
         learning_rate = trial.suggest_loguniform("learning_rate", 0.0005, 0.01)
         batch_size = trial.suggest_discrete_uniform("batch_size", 32, 128, 1)
-        learning_starts = trial.suggest_discrete_uniform("learning_starts", 10, 10000, 1)
+        learning_starts = trial.suggest_discrete_uniform("learning_starts", 10000)
 
         DQN_PARAMS = {
             "gamma": gamma,
