@@ -4,6 +4,7 @@ import time
 
 import joblib
 import optuna
+import random
 
 from src.config import config
 from src.preprocessing import data
@@ -19,7 +20,7 @@ class Tune:
         self.end_date = end_date
         self.data = None
 
-        timestamp = str(int(time.time()))
+        timestamp = str(random.randint(0, 1e6)) + str(int(time.time()))
         run_path = timestamp + "_" + model_name
         self.logs_base_dir = f"{config.LOG_DIR_HYPERPARAMETER_TUNING}/{run_path}"
         self.log_tensorboard = f"{self.logs_base_dir}/log_tensorboard"
@@ -33,9 +34,12 @@ class Tune:
                   'wb') as fp:
             pickle.dump(hyperparameters, fp, protocol=pickle.HIGHEST_PROTOCOL)
 
-    def run_study(self):
+    def run_study(self, storage="memory"):
         self.init_data()
-        study = optuna.create_study(study_name=self.study_name, load_if_exists=True, direction="maximize")
+        if storage=="memory":   
+            study = optuna.create_study(study_name=self.study_name, direction="maximize")
+        elif storage=="mysql":
+            study = optuna.create_study(study_name=self.study_name, direction="maximize", storage=config.MYSQL_DB)
         study.optimize(self.objective, n_trials=self.n_trials, n_jobs=1)
         joblib.dump(study, f"{self.logs_base_dir}/study.pkl")
         print(f"Best trial:\n{study.best_trial}")

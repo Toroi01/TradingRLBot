@@ -8,6 +8,7 @@ TENSORBOARD_LOG_DIR = f"{ROOT_DIR}/logs/tensorboard"
 RESULTS_DIR = f"{ROOT_DIR}/results"
 
 LOG_DIR_HYPERPARAMETER_TUNING =f"{ROOT_DIR}/logs/hyp_tune"
+MYSQL_DB = "mysql://root:0000@localhost/TradingRLBot"
 
 
 ## time_fmt = '%Y-%m-%d'
