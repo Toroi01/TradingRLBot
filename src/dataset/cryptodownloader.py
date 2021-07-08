@@ -12,7 +12,7 @@ Downloads crypto data from https://www.binance.com/
 Doc: https://github.com/binance/binance-public-data/
 """
 
-class CryptoDownloader_binance:
+class CryptoDownloader:
     '''
     A downloader class to download and load crypto dataset
     Attributes

@@ -1,14 +1,13 @@
 from os.path import dirname, abspath
-ROOT_DIR = dirname(dirname(abspath(__file__))) 
+ROOT_DIR = dirname(dirname(dirname(abspath(__file__))))
 
-
-DATA_SAVE_DIR = f"{ROOT_DIR}/dataset/crypto_dataset_binance"
+DATA_SAVE_DIR = f"{ROOT_DIR}/data/crypto_dataset_binance"
 DATA_GRANULARITY = "1h"
 TRAINED_MODEL_DIR = f"{ROOT_DIR}/trained_models"
-TENSORBOARD_LOG_DIR = f"{ROOT_DIR}/tensorboard_log_from_main"
+TENSORBOARD_LOG_DIR = f"{ROOT_DIR}/logs/tensorboard"
 RESULTS_DIR = f"{ROOT_DIR}/results"
 
-LOG_DIR_HYPERPARAMETER_TUNING =f"{ROOT_DIR}/hyperparameter_tuning/log"
+LOG_DIR_HYPERPARAMETER_TUNING =f"{ROOT_DIR}/logs/hyp_tune"
 
 
 ## time_fmt = '%Y-%m-%d'
@@ -75,10 +74,9 @@ ACTUAL_TICKERS = MULTIPLE_TICKER_8
 ## Model Parameters
 A2C_PARAMS = {"n_steps": 5, "ent_coef": 0.01, "learning_rate": 0.0007}
 PPO_PARAMS = {
-    "n_steps": 2048,
-    "ent_coef": 0.01,
-    "learning_rate": 0.00025,
-    "batch_size": 64,
+    "n_steps": 512,
+    "ent_coef": 2.1707619545189712e-08,
+    "learning_rate": 0.0002791093859057437,
 }
 DDPG_PARAMS = {"batch_size": 128, "buffer_size": 50000, "learning_rate": 0.001}
 TD3_PARAMS = {"batch_size": 100, "buffer_size": 1000000, "learning_rate": 0.001}

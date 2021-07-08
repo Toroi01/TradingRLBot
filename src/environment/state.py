@@ -7,8 +7,8 @@ class State:
     - Technical indicators for all assets
     """
 
-    def __init__(self, technical_indicator_list, ticker_list):
-        self.technical_indicator_list = technical_indicator_list
+    def __init__(self, features, ticker_list):
+        self.features = features
         self.ticker_list = ticker_list
         self.portfolio = None
         self.hourly_data = None
@@ -19,7 +19,7 @@ class State:
         :return: Array of values
         """
         values = [self.portfolio.cash] + self.hourly_data.close.values.tolist() + self.portfolio.values()
-        for name in self.technical_indicator_list:
+        for name in self.features:
             values += self.hourly_data[name].values.tolist()
         return values
 
@@ -42,5 +42,5 @@ class State:
         cash_size = 1
         all_tickers_close_prices_size = len(all_tickers)
         main_tickers_allocation = len(main_tickers)
-        all_tickers_indicators = len(self.technical_indicator_list) * len(all_tickers)
+        all_tickers_indicators = len(self.features) * len(all_tickers)
         return cash_size + all_tickers_close_prices_size + main_tickers_allocation + all_tickers_indicators

@@ -3,7 +3,7 @@ import pandas as pd
 import ta
 from stockstats import StockDataFrame as Sdf
 
-from config import config
+from src.config import config
 
 indicators_list = [
     ('psar', ta.trend.psar_up_indicator, ['high', 'low', 'close']),

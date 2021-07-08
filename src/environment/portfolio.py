@@ -18,7 +18,7 @@ class Portfolio:
         self.ticker_list = ticker_list
         self._amounts = {ticker: 0.0 for ticker in ticker_list}
 
-        self.historic_transactions = pd.DataFrame()
+        self.historic_transactions = []
 
     def get_amount(self, ticker):
         if ticker not in self._amounts:
@@ -36,7 +36,7 @@ class Portfolio:
     def reset(self):
         self.cash = self.initial_cash
         self._amounts = {ticker: 0.0 for ticker in self.ticker_list}
-        self.historic_transactions = pd.DataFrame()
+        self.historic_transactions = []
 
     def items(self):
         return self._amounts.items()
@@ -44,11 +44,8 @@ class Portfolio:
     def values(self):
         return list(self._amounts.values())
 
-    def to_df(self):
-        all_amounts = {**{"cash": self.cash}, **self._amounts}
-        # This is needed in order to transform it into a df
-        all_amounts = {k: [v] for k, v in all_amounts.items()}
-        return pd.DataFrame(all_amounts)
+    def to_dict(self):
+        return {**{"cash": self.cash}, **self._amounts}
 
     def buy(self, ticker, amount, price, timestamp, comission_value):
         """
@@ -121,9 +118,11 @@ class Portfolio:
         return asset_value
 
     def log_transaction(self, timestamp, operation, ticker, amount, price):
-        new_entry = pd.DataFrame(
-            {'date': [timestamp], 'operation': [operation], 'tic': [ticker], 'amount': [amount], 'price': [price]})
-        self.historic_transactions = self.historic_transactions.append(new_entry)
+        new_entry = {'date': [timestamp], 'operation': [operation], 'tic': [ticker], 'amount': [amount], 'price': [price]}
+        self.historic_transactions.append(new_entry)
+
+    def get_historic_transactions(self):
+        return pd.DataFrame(self.historic_transactions)
 
     @staticmethod
     def get_price_per_asset(hourly_data):
