@@ -10,8 +10,8 @@ if __name__ == '__main__':
     end_date = "2021-05-01"
 
     env_params = {
-        "initial_amount": 1000000,
-        "max_assets_amount_per_trade": 100,
+        "initial_amount": 10000,
+        "max_amount_per_trade": 1000,
         "main_tickers": config.MULTIPLE_TICKER_8,
         "all_tickers": config.MULTIPLE_TICKER_8,
         "reward_type": "percentage",
