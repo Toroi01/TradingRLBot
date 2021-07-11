@@ -35,12 +35,13 @@ class TimeSeriesValidation:
 
         return train, test
 
-    def run(self, df, env_params, model_name, model_params, log_tensorboard=None, tb_log_name="tb_log_name"):
+    def run(self, df, env_params, model_name, model_params, log_tensorboard=None):
         total_results = []
         df = format_for_env(df)
         for n in range(self.num_splits):
+            tb_name_train = f"split_{n}_train"
             train, test = self.next_part(df, n)
-            model = train_model(train, env_params, model_name, model_params, self.total_timesteps_model, log_tensorboard, tb_log_name)
+            model = train_model(train, env_params, model_name, model_params, self.total_timesteps_model, log_tensorboard, tb_name=tb_name_train)
             print("Metrics testing")
             results = test_model(test, env_params, model, with_graphs=self.with_graphs)
             total_results.append(results)

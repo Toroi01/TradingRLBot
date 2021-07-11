@@ -26,13 +26,17 @@ class Tune:
         self.log_tensorboard = f"{self.logs_base_dir}/log_tensorboard"
         self.study_name = f"{timestamp}_{model_name}"
 
-    def save_hyperparameters_metrics(self, trial_number, hyperparameters, metrics):
-        if not os.path.exists(self.logs_base_dir):
-            os.makedirs(self.logs_base_dir)
-        hyperparameters.update(metrics)
-        with open(f"{self.logs_base_dir}/trial_{trial_number}_{self.model_name}.pkl",
-                  'wb') as fp:
-            pickle.dump(hyperparameters, fp, protocol=pickle.HIGHEST_PROTOCOL)
+    def save(self, name, trial_number, content):
+        os.makedirs(self.logs_base_dir, exist_ok=True)
+        if name=="hyperparameters":
+            file_name = f"trial_{trial_number}_HYP.pkl"
+        elif name=="metrics":
+            file_name = f"trial_{trial_number}_METRICS.pkl"
+        elif name=="model":
+            file_name = f"trial_{trial_number}_MODEL.pkl"
+        with open(f"{self.logs_base_dir}/{file_name}.pkl",'wb') as fp:
+            pickle.dump(content, fp, protocol=pickle.HIGHEST_PROTOCOL)
+
 
     def run_study(self, storage="memory"):
         self.init_data()
@@ -49,7 +53,6 @@ class Tune:
         print("Initializing data and features")
         self.data = data.load_processed_df()
         self.data = data.data_split(self.data, self.start_date, self.end_date)
-        self.env_params["features"] = data.build_features(self.data)
 
 
 class TuneBuilder:
