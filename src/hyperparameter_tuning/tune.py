@@ -53,6 +53,7 @@ class Tune:
         print("Initializing data and features")
         self.data = data.load_processed_df()
         self.data = data.data_split(self.data, self.start_date, self.end_date)
+        self.env_params["features"] = data.build_features(self.data)
 
 
 class TuneBuilder:
