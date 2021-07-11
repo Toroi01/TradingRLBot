@@ -3,6 +3,7 @@ venv/
 dataset/crypto_dataset/*
 .ipynb_checkpoints/
 .vscode/
+src/scripts/mlruns/
 
 # To keep the empty folders
 !dataset/crypto_dataset/.gitkeep
@@ -10,7 +11,7 @@ dataset/crypto_dataset/*
 !hyperparameter_tuning/log/.gitkeep
 data/*
 logs/*
-src/scripts/mlruns/*
+
 
 # remove DS_Store
 **/.DS_Store
