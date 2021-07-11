@@ -2,6 +2,10 @@ from src.config import config
 from src.model.runner import train_model
 from src.preprocessing import data
 import logging
+from os.path import dirname, abspath
+import sys
+sys.path.append(dirname(dirname(dirname(abspath(__file__)))))
+
 logging.basicConfig(level=logging.INFO)
 
 if __name__ == '__main__':

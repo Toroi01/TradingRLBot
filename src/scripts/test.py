@@ -1,5 +1,8 @@
 import logging
 logging.basicConfig(level=logging.INFO)
+from os.path import dirname, abspath
+import sys
+sys.path.append(dirname(dirname(dirname(abspath(__file__)))))
 
 from src.config import config
 from src.model.runner import train_model, test_model
