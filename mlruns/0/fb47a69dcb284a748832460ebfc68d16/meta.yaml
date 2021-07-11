@@ -1,0 +1,15 @@
+artifact_uri: file:///home/joan/Desktop/TradingRLBot/mlruns/0/fb47a69dcb284a748832460ebfc68d16/artifacts
+end_time: 1626034438696
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+name: ''
+run_id: fb47a69dcb284a748832460ebfc68d16
+run_uuid: fb47a69dcb284a748832460ebfc68d16
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1626034438689
+status: 3
+tags: []
+user_id: joan

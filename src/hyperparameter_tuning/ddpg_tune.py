@@ -24,10 +24,11 @@ class DDPGTune(Tune):
         }
 
         tsv = TimeSeriesValidation(**self.tsv_params)
-        metrics = tsv.run(self.data, self.env_params, self.model_name, DDPG_PARAMS)
+        metrics, model = tsv.run(self.data, self.env_params, self.model_name, DDPG_PARAMS, log_tensorboard=self.log_tensorboard)
         print(f"Metrics: {metrics}")
         self.save("hyperparameters", trial_number=trial.number, content=DDPG_PARAMS)
         self.save("metrics", trial_number=trial.number, content=metrics)
+        self.save("model", trial_number=trial.number, content=model)
         super().log_run("ddpg", DDPG_PARAMS, metrics, run_name = f"{self.timestamp}_trial_{trial.number}")
 
         return metrics['sharpe']
