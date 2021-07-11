@@ -3,7 +3,7 @@ venv/
 dataset/crypto_dataset/*
 .ipynb_checkpoints/
 .vscode/
-src/scripts/mlruns/*
+mlruns/
 
 # To keep the empty folders
 !dataset/crypto_dataset/.gitkeep
