@@ -6,10 +6,8 @@ sys.path.append(dirname(dirname(dirname(abspath(__file__)))))
 
 from src.config import config
 from src.hyperparameter_tuning.tune import TuneBuilder
-import sys
 
 if __name__ == '__main__':
-    print(sys.path)
 
     start_date = config.HT_START_TRAIN_DATE
     end_date = config.HT_END_TRAIN_DATE
