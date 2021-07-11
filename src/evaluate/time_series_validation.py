@@ -10,7 +10,7 @@ averaged.
 
 
 class TimeSeriesValidation:
-    def __init__(self, num_splits=5, test_proportion=0.2, gap_proportion=0.05, total_timesteps_model=10000,
+    def __init__(self, num_splits=5, test_proportion=0.2, gap_proportion=0.05, total_timesteps_model=1000,
                  with_graphs=True):
         self.num_splits = num_splits
         self.test_proportion = test_proportion
@@ -36,6 +36,8 @@ class TimeSeriesValidation:
         return train, test
 
     def run(self, df, env_params, model_name, model_params, log_tensorboard=None):
+        print(self.num_splits)
+        print(self.total_timesteps_model)
         total_results = []
         df = format_for_env(df)
         for n in range(self.num_splits):
