@@ -3,6 +3,7 @@ import pickle
 import time
 
 import joblib
+import mlflow
 import optuna
 import random
 
@@ -55,6 +56,11 @@ class Tune:
         self.data = data.data_split(self.data, self.start_date, self.end_date)
         self.env_params["features"] = data.build_features(self.data)
 
+    def log_run(self, model_name, params, metrics):
+        with mlflow.start_run():
+            mlflow.log_params(params)
+            mlflow.log_param("name", model_name)
+            mlflow.log_metrics(metrics)
 
 class TuneBuilder:
 

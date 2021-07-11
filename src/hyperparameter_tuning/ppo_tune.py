@@ -54,4 +54,6 @@ class PPOTune(Tune):
         print(f"Metrics: {metrics}")
         self.save("hyperparameters", trial_number=trial.number, content=PPO_PARAMS)
         self.save("metrics", trial_number=trial.number, content=metrics)
+        super().log_run("ppo", PPO_PARAMS, metrics)
+
         return metrics['sharpe']

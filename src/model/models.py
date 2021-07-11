@@ -54,7 +54,7 @@ class DRLAgent:
     def DRL_prediction(model, environment):
         obs = environment.reset()
         done = False
-        while(not done):
+        while not done:
             action = model.predict(obs)[0].tolist()
             obs, rewards, done, info = environment.step(action)
         print("hit end test!")

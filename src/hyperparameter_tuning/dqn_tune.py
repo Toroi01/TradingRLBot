@@ -26,4 +26,6 @@ class DQNTune(Tune):
         print(f"Metrics: {metrics}")
         self.save("hyperparameters", trial_number=trial.number, content=DQN_PARAMS)
         self.save("metrics", trial_number=trial.number, content=metrics)
+        super().log_run("ppo", DQN_PARAMS, metrics)
+
         return metrics['sharpe']
