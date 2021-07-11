@@ -18,7 +18,7 @@ def train_model(data, env_params, model_name, model_params, total_timesteps_mode
 
 def test_model(data, env_params, model, with_graphs=False):
     print(f"Test from [{data['date'].iloc[0]}] to [{data['date'].iloc[-1]}]")
-    env_test_gym = CustomTradingEnv(df=data, **env_params)
+    env_test_gym = CustomTradingEnv(df=data, is_training=False, **env_params)
     _, _, allocation_values = DRLAgent.DRL_prediction(model=model, environment=env_test_gym)
     bat = BackTest(model, env_test_gym)
     results = bat.evaluate(allocation_values, data)

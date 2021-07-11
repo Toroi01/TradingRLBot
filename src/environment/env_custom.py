@@ -18,7 +18,7 @@ class CustomTradingEnv(gym.Env):
 
     def __init__(self, df, main_tickers, all_tickers, max_amount_per_trade, features,
                  initial_amount, reward_type="absolute", reward_scaling=1,
-                 turbulence_threshold=None, comission_value=None, discrete_actionspace=False
+                 turbulence_threshold=None, comission_value=None, discrete_actionspace=False, is_training=True
                  ):
         # In each step, the maximum spend to buy/sell per ticker is limited
         self.max_amount_per_trade = max_amount_per_trade
@@ -40,6 +40,8 @@ class CustomTradingEnv(gym.Env):
         # Threshold from a Uniform distribution to add noise
         self.turbulence_threshold = turbulence_threshold
         self.discrete_actionspace = discrete_actionspace
+        # Training flag
+        self.is_training = is_training
 
         self.state = State(features, all_tickers)
         self.portfolio = Portfolio(cash=initial_amount, ticker_list=self.main_tickers)
@@ -200,7 +202,7 @@ class CustomTradingEnv(gym.Env):
     def is_done(self, hourly_data):
         percent_of_initial_value = self.portfolio.get_total_portfolio_value(hourly_data) / self.portfolio.initial_cash
         # Check if it's the last iteration or ran out of budget (10%)
-        return (self._hour_counter == max(self.df.index) - 1) or percent_of_initial_value < 0.1
+        return (self._hour_counter == max(self.df.index) - 1) or (self.is_training and percent_of_initial_value < 0.1)
 
     def reset(self):
         """
