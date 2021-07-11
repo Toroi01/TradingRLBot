@@ -8,8 +8,8 @@ from src.config import config
 from src.hyperparameter_tuning.tune import TuneBuilder
 
 if __name__ == '__main__':
-    start_date = "2020-01-01"
-    end_date = "2021-05-01"
+    start_date = config.HT_START_TRAIN_DATE
+    end_date = config.HT_END_TRAIN_DATE
 
     env_params = {
         "initial_amount": 10000,

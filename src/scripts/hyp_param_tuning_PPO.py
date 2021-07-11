@@ -8,7 +8,6 @@ from src.config import config
 from src.hyperparameter_tuning.tune import TuneBuilder
 
 if __name__ == '__main__':
-
     start_date = config.HT_START_TRAIN_DATE
     end_date = config.HT_END_TRAIN_DATE
 

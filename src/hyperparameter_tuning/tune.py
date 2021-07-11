@@ -21,11 +21,11 @@ class Tune:
         self.end_date = end_date
         self.data = None
 
-        timestamp = str(random.randint(0, 1e6)) + str(int(time.time()))
-        run_path = timestamp + "_" + model_name
+        self.timestamp = str(random.randint(0, 1e6)) + str(int(time.time()))
+        run_path = self.timestamp + "_" + model_name
         self.logs_base_dir = f"{config.LOG_DIR_HYPERPARAMETER_TUNING}/{run_path}"
         self.log_tensorboard = f"{self.logs_base_dir}/log_tensorboard"
-        self.study_name = f"{timestamp}_{model_name}"
+        self.study_name = f"{self.timestamp}_{model_name}"
 
     def save(self, name, trial_number, content):
         os.makedirs(self.logs_base_dir, exist_ok=True)
@@ -56,10 +56,10 @@ class Tune:
         self.data = data.data_split(self.data, self.start_date, self.end_date)
         self.env_params["features"] = data.build_features(self.data)
 
-    def log_run(self, model_name, params, metrics):
-        with mlflow.start_run():
+    def log_run(self, model_name, params, metrics, run_name):
+        with mlflow.start_run(run_name=run_name):
             mlflow.log_params(params)
-            mlflow.log_param("name", model_name)
+            mlflow.log_param("model_name", model_name)
             mlflow.log_metrics(metrics)
 
 class TuneBuilder:
