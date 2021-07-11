@@ -21,7 +21,7 @@ class Tune:
         self.end_date = end_date
         self.data = None
 
-        self.timestamp = str(random.randint(0, 1e6)) + str(int(time.time()))
+        self.timestamp = str(int(time.time()))+str(random.randint(0, 1e6)) 
         run_path = self.timestamp + "_" + model_name
         self.logs_base_dir = f"{config.LOG_DIR_HYPERPARAMETER_TUNING}/{run_path}"
         self.log_tensorboard = f"{self.logs_base_dir}/log_tensorboard"
@@ -30,11 +30,13 @@ class Tune:
     def save(self, name, trial_number, content):
         os.makedirs(self.logs_base_dir, exist_ok=True)
         if name=="hyperparameters":
-            file_name = f"trial_{trial_number}_HYP.pkl"
+            file_name = f"trial_{trial_number}_HYP"
         elif name=="metrics":
-            file_name = f"trial_{trial_number}_METRICS.pkl"
+            file_name = f"trial_{trial_number}_METRICS"
         elif name=="model":
-            file_name = f"trial_{trial_number}_MODEL.pkl"
+            file_name = f"trial_{trial_number}_MODEL"
+            content.save(f"{self.logs_base_dir}/{file_name}.pkl")
+            return
         with open(f"{self.logs_base_dir}/{file_name}.pkl",'wb') as fp:
             pickle.dump(content, fp, protocol=pickle.HIGHEST_PROTOCOL)
 
