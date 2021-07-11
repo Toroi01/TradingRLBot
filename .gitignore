@@ -10,6 +10,7 @@ dataset/crypto_dataset/*
 !hyperparameter_tuning/log/.gitkeep
 data/*
 logs/*
+src/scripts/mlruns/*
 
 # remove DS_Store
 **/.DS_Store
