@@ -5,7 +5,6 @@ from src.preprocessing.data import build_features
 
 
 def train_model(data, env_params, model_name, model_params, total_timesteps_model, log_tensorboard=None, tb_name=None):
-    env_params["features"] = build_features(data)
     env_train_gym = CustomTradingEnv(df=data, **env_params)
     #env_train, _ = env_train_gym.get_sb_env()
     print(f"Train from [{data['date'].iloc[0]}] to [{data['date'].iloc[-1]}]")
@@ -19,7 +18,6 @@ def train_model(data, env_params, model_name, model_params, total_timesteps_mode
 
 def test_model(data, env_params, model, with_graphs=False):
     print(f"Test from [{data['date'].iloc[0]}] to [{data['date'].iloc[-1]}]")
-    env_params["features"] = build_features(data)
     env_test_gym = CustomTradingEnv(df=data, **env_params)
     _, _, allocation_values = DRLAgent.DRL_prediction(model=model, environment=env_test_gym)
     bat = BackTest(model, env_test_gym)

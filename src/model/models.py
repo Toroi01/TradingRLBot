@@ -52,18 +52,14 @@ class DRLAgent:
 
     @staticmethod
     def DRL_prediction(model, environment):
-        test_env, test_obs = environment.get_sb_env()
-        test_env.reset()
-        for i in range(len(environment.df.index.unique())):
-            action, _states = model.predict(test_obs)
-            test_obs, rewards, dones, info = test_env.step(action)
+        obs = environment.reset()
+        done = False
+        while(not done):
+            action = model.predict(obs)[0].tolist()
+            obs, rewards, done, info = environment.step(action)
+        print("hit end test!")
+        allocations = environment.save_asset_memory()
+        transactions = environment.save_action_memory()
+        allocation_values = environment.save_asset_values_memory()
 
-            if i == (len(environment.df.index.unique()) - 4):
-                allocations = test_env.env_method(method_name="save_asset_memory")
-                transactions = test_env.env_method(method_name="save_action_memory")
-                allocation_values = test_env.env_method(method_name="save_asset_values_memory")
-
-            if dones[0]:
-                print("hit end!")
-                break
-        return allocations[0], transactions[0], allocation_values[0]
+        return allocations, transactions, allocation_values

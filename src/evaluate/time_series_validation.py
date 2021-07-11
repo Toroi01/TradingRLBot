@@ -36,8 +36,6 @@ class TimeSeriesValidation:
         return train, test
 
     def run(self, df, env_params, model_name, model_params, log_tensorboard=None):
-        print(self.num_splits)
-        print(self.total_timesteps_model)
         total_results = []
         df = format_for_env(df)
         for n in range(self.num_splits):

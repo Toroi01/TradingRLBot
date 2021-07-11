@@ -19,7 +19,7 @@ if __name__ == '__main__':
         "comission_value": 0.01
     }
 
-    model_name = "ppo"
+    model_name = "ddpg"
 
     tsv_params = {
         "num_splits": 1,

@@ -11,12 +11,12 @@ class DQNTune(Tune):
         tau = trial.suggest_loguniform("tau", 0.001, 0.1)
         learning_rate = trial.suggest_loguniform("learning_rate", 0.0005, 0.01)
         batch_size = trial.suggest_discrete_uniform("batch_size", 32, 128, 1)
-        learning_starts = trial.suggest_discrete_uniform("learning_starts", 10000)
+        #learning_starts = trial.suggest_discrete_uniform("learning_starts", 1000, 10000)
 
         DQN_PARAMS = {
             "gamma": gamma,
             "tau": tau,
-            "learning_starts": learning_starts,
+            #"learning_starts": learning_starts,
             "learning_rate": learning_rate,
             "batch_size": int(batch_size)
         }
@@ -24,8 +24,6 @@ class DQNTune(Tune):
         tsv = TimeSeriesValidation(**self.tsv_params)
         metrics = tsv.run(self.data, self.env_params, self.model_name, DQN_PARAMS)
         print(f"Metrics: {metrics}")
-
-        # Save hyperparameters with evaluation metrics
-        self.save_hyperparameters_metrics(trial_number=trial.number, hyperparameters=DQN_PARAMS, metrics=metrics)
-
+        self.save("hyperparameters", trial_number=trial.number, content=DQN_PARAMS)
+        self.save("metrics", trial_number=trial.number, content=metrics)
         return metrics['sharpe']
