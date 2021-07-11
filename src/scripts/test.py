@@ -20,22 +20,24 @@ if __name__ == '__main__':
     features = data.build_features(df)
 
     env_params = {
-        "initial_amount": 1000000,
+        "initial_amount": 10000,
         "features": features,
-        "max_assets_amount_per_trade": 100,
+        "max_amount_per_trade": 1000,
         "main_tickers": config.MULTIPLE_TICKER_8,
         "all_tickers": config.MULTIPLE_TICKER_8,
         "reward_type": "percentage",
+        "discrete_actionspace": True,
         "comission_value": 0.01
     }
 
-    model_name = "ppo"
-    model_params = config.PPO_PARAMS
+    model_name = "dqn"
+    model_params = config.DQN_PARAMS
     total_timesteps_model = 100000
 
     logging.info("Training model")
     model = train_model(train, env_params, model_name, model_params, total_timesteps_model)
     logging.info("Testing model")
-    results = test_model(test, env_params, model)
+    results = test_model(test, env_params, model, with_graphs=True)
+
 
     logging.info(f"Results: {results}")

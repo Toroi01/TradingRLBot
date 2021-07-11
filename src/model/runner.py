@@ -20,7 +20,7 @@ def test_model(data, env_params, model, with_graphs=False):
     env_test_gym = CustomTradingEnv(df=data, **env_params)
     _, _, allocation_values = DRLAgent.DRL_prediction(model=model, environment=env_test_gym)
     bat = BackTest(model, env_test_gym)
-    results = bat.evaluate(allocation_values)
+    results = bat.evaluate(allocation_values, data)
     if with_graphs:
         bat.plot_return_against_hold(allocation_values)
     return results

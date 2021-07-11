@@ -16,12 +16,12 @@ class CustomTradingEnv(gym.Env):
     """A custom stock trading environment for OpenAI gym"""
     metadata = {'render.modes': ['human']}
 
-    def __init__(self, df, main_tickers, all_tickers, max_assets_amount_per_trade, features,
+    def __init__(self, df, main_tickers, all_tickers, max_amount_per_trade, features,
                  initial_amount, reward_type="absolute", reward_scaling=1,
                  turbulence_threshold=None, comission_value=None, discrete_actionspace=False
                  ):
-        # In each step, the maximum number of assets per ticker is limited to a value
-        self.max_assets_amount_per_trade = max_assets_amount_per_trade
+        # In each step, the maximum spend to buy/sell per ticker is limited
+        self.max_amount_per_trade = max_amount_per_trade
         # String list with the ticker names that we want to buy and sell
         self.main_tickers = [x.lower() for x in main_tickers]
         # String list with tickers that will be used as information.
@@ -86,7 +86,7 @@ class CustomTradingEnv(gym.Env):
         self.log_allocation_amount(new_hourly_data)
         self.log_allocation_values(new_hourly_data)
 
-        return self.state.values(), reward, self.is_done(), {}
+        return self.state.values(), reward, self.is_done(hourly_data), {}
 
     def _get_hourly_data(self):
         """
@@ -113,7 +113,7 @@ class CustomTradingEnv(gym.Env):
         """
         asset_price = hourly_data.loc[hourly_data.tic == ticker, 'close'].values[0]
         timestamp = hourly_data['date'].iloc[0]
-        amount = action * self.max_assets_amount_per_trade
+        amount = action * int(self.max_amount_per_trade / asset_price)
         # Adding some noise not performing any action
         if self.turbulence_threshold and random.random() < self.turbulence_threshold:
             return
@@ -197,15 +197,17 @@ class CustomTradingEnv(gym.Env):
             reward = 0
         return reward
 
-    def is_done(self):
-        # Check if it's the last iteration
-        return self._hour_counter == max(self.df.index) - 1
+    def is_done(self, hourly_data):
+        percent_of_initial_value = self.portfolio.get_total_portfolio_value(hourly_data) / self.portfolio.initial_cash
+        # Check if it's the last iteration or ran out of budget (10%)
+        return (self._hour_counter == max(self.df.index) - 1) or percent_of_initial_value < 0.1
 
     def reset(self):
         """
         Reseting the portfolio, state and the data used to feed the algorithm
         :return: Initial state
         """
+        print("RESET")
         self.portfolio.reset()
         self._hour_counter = min(self.df.index)
         hourly_data = self._get_hourly_data()

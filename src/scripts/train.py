@@ -16,9 +16,9 @@ if __name__ == '__main__':
     features = data.build_features(df)
 
     env_params = {
-        "initial_amount": 1000000,
+        "initial_amount": 10000,
         "features": features,
-        "max_assets_amount_per_trade": 100,
+        "max_amount_per_trade": 1000,
         "main_tickers": config.MULTIPLE_TICKER_8,
         "all_tickers": config.MULTIPLE_TICKER_8,
         "reward_type": "percentage",

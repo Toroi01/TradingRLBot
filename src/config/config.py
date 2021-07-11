@@ -76,8 +76,8 @@ ACTUAL_TICKERS = MULTIPLE_TICKER_8
 A2C_PARAMS = {"n_steps": 5, "ent_coef": 0.01, "learning_rate": 0.0007}
 PPO_PARAMS = {
     "n_steps": 512,
-    "ent_coef": 2.1707619545189712e-08,
-    "learning_rate": 0.0002791093859057437,
+    "ent_coef": 2.17e-08,
+    "learning_rate": 0.00027910,
 }
 DDPG_PARAMS = {"batch_size": 128, "buffer_size": 50000, "learning_rate": 0.001}
 TD3_PARAMS = {"batch_size": 100, "buffer_size": 1000000, "learning_rate": 0.001}

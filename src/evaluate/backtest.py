@@ -63,25 +63,28 @@ class BackTest:
             )
         fig.show()
 
-    def evaluate(self, allocation_values):
+    def evaluate(self, allocation_values, close_prices):
         """
         Compute metrics used to evaluate models
-        :param df: Test df
-        :return: Metrics object
         """
         returns = allocation_values.sum(axis=1).pct_change()
-        total_return = (returns + 1).cumprod().iloc[-1] - 1
+        total_return = (returns + 1).cumprod().iloc[-1]
 
         # Sharpe and sortino are calculated at hourly level
-        sharpe = total_return / np.std(returns)
-        sortino = total_return / np.std([day_return for day_return in returns if day_return < 0])
+        sharpe = (total_return -1) / np.std(returns)
+        sortino = (total_return - 1) / np.std([day_return for day_return in returns if day_return < 0])
         max_drawdown = self.max_drawdown(returns)
+        return_btc = close_prices[close_prices.tic == 'btc'].close.pct_change()
+        total_return_btc = (return_btc + 1).cumprod().iloc[-1]
+        sharpe_btc = (total_return_btc - 1) / np.std(return_btc)
 
         return {
             "return": total_return,
             "sharpe": sharpe,
             "sortino": sortino,
-            "max_drawdown": max_drawdown
+            "max_drawdown": max_drawdown,
+            "return_btc": total_return_btc,
+            "sharpe_btc": sharpe_btc,
         }
 
     def max_drawdown(self, returns):

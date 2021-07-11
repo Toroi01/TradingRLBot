@@ -17,25 +17,26 @@ def load_dataset(file_name):
 
 
 def load_processed_df():
-    df_path = os.path.join(config.DATA_SAVE_DIR,config.PREPROCESSED_DF_NAME)
-    if not os.path.isfile(df_path):
-        os.makedirs(config.DATA_SAVE_DIR,exist_ok=True)
+    df_path = os.path.join(config.DATA_SAVE_DIR, config.PREPROCESSED_DF_NAME)
+    if os.path.isfile(df_path):
+        return pd.read_pickle(df_path)
 
-        data_downloader = CryptoDownloader(config.START_DATE, config.END_DATE, config.MULTIPLE_TICKER_8,
-                                                config.DATA_SAVE_DIR, config.DATA_GRANULARITY)
-        data_downloader.download_data()
-        df = data_downloader.load()
+    os.makedirs(config.DATA_SAVE_DIR,exist_ok=True)
 
-        fe = FeatureEngineer(
-            use_technical_indicator=True,
-            use_turbulence=False,
-            user_defined_feature=True,
-            use_covariance=True
-        )
-        df = fe.preprocess_data(df)
-        df.to_pickle(df_path)
-    else:
-        df = pd.read_pickle(df_path)
+    data_downloader = CryptoDownloader(config.START_DATE, config.END_DATE, config.MULTIPLE_TICKER_8,
+                                            config.DATA_SAVE_DIR, config.DATA_GRANULARITY)
+    data_downloader.download_data()
+    df = data_downloader.load()
+
+    fe = FeatureEngineer(
+        use_technical_indicator=True,
+        use_turbulence=False,
+        user_defined_feature=True,
+        use_covariance=True
+    )
+    df = fe.preprocess_data(df)
+    df.to_pickle(df_path)
+
     return df
 
 
