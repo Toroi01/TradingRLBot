@@ -25,11 +25,11 @@ if __name__ == '__main__':
 
     tsv_params = {
         "num_splits": 1,
-        "total_timesteps_model": 1,
+        "total_timesteps_model": 1e6,
         "with_graphs": False
     }
 
-    n_trials = 1
+    n_trials = 5
 
     tuner = TuneBuilder.load(model_name, n_trials, env_params, tsv_params, start_date, end_date)
     results = tuner.run_study(storage="mysql")

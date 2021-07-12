@@ -10,15 +10,26 @@ class DQNTune(Tune):
         gamma = trial.suggest_loguniform("gamma", 0.9, 0.99999)
         tau = trial.suggest_loguniform("tau", 0.001, 0.999)
         learning_rate = trial.suggest_loguniform("learning_rate", 0.0005, 0.01)
-        batch_size = trial.suggest_discrete_uniform("batch_size", 32, 256, 2)
+        batch_size = trial.suggest_categorical("batch_size", [100, 200, 300, 400])
+        buffer_size = trial.suggest_categorical("buffer_size", [1e3, 1e4, 1e5])
+        target_update_interval = trial.suggest_categorical("target_update_interval", [1e2, 1e3, 1e4])
+        exploration_fraction = trial.suggest_categorical("exploration_fraction", [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7])
+        learning_starts = trial.suggest_categorical("learning_starts", [100, 200, 300, 400])
         
 
         DQN_PARAMS = {
             "gamma": gamma,
             "tau": tau,
             "learning_rate": learning_rate,
-            "batch_size": int(batch_size)
+            "batch_size": int(batch_size),
+            "buffer_size": int(buffer_size),
+            "target_update_interval":target_update_interval,
+            "exploration_fraction":exploration_fraction,
+            "learning_starts":int(learning_starts),
+            "seed":8,
         }
+
+        print(DQN_PARAMS)
 
         tsv = TimeSeriesValidation(**self.tsv_params)
         metrics, model = tsv.run(self.data, self.env_params, self.model_name, DQN_PARAMS, log_tensorboard=self.log_tensorboard)
