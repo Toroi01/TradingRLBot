@@ -46,14 +46,13 @@ class TimeSeriesValidation:
         agent = DRLAgent(CustomTradingEnv(df=df, **env_params))
         model = agent.get_model(model_name=model_name, model_kwargs=model_params, tensorboard_log=log_tensorboard)        
         df = format_for_env(df)
-        
+
         for n in range(self.num_splits):
             tb_name_train = f"split_{n}_train"
             df_train, df_test = self.next_part(df, n)            
             #Train
             print(f"Train from [{df_train['date'].iloc[0]}] to [{df_train['date'].iloc[-1]}]")
-            env_train = CustomTradingEnv(df=df_train, **env_params)
-            agent.env = env_train
+            model.env, _ = CustomTradingEnv(df=df_train, **env_params).get_sb_env()
             model = agent.train_model(model=model, tb_log_name=tb_name_train, total_timesteps=self.total_timesteps_model)
             #Test
             results = test_model(df_test, env_params, model, with_graphs=self.with_graphs)
