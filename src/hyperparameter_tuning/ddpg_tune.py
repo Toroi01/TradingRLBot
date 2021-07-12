@@ -20,7 +20,8 @@ class DDPGTune(Tune):
             #"exploration_fraction": exploration_fraction,
             "learning_starts": learning_starts,
             "learning_rate": learning_rate,
-            "batch_size": int(batch_size)
+            "batch_size": int(batch_size),
+            "seed":8,
         }
 
         tsv = TimeSeriesValidation(**self.tsv_params)

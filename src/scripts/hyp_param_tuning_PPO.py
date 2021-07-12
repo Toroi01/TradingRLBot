@@ -12,7 +12,7 @@ if __name__ == '__main__':
     end_date = config.HT_END_TRAIN_DATE
 
     env_params = {
-        "initial_amount": 10000,
+        "initial_amount": 1e4,
         "max_amount_per_trade": 1000,
         "main_tickers": config.MULTIPLE_TICKER_8,
         "all_tickers": config.MULTIPLE_TICKER_8,
@@ -24,12 +24,12 @@ if __name__ == '__main__':
     model_name = "ppo"
 
     tsv_params = {
-        "num_splits": 1,
-        "total_timesteps_model": 1e6,
+        "num_splits": 4,
+        "total_timesteps_model": 1e5,
         "with_graphs": False
     }
 
-    n_trials = 5
+    n_trials = 1
 
     tuner = TuneBuilder.load(model_name, n_trials, env_params, tsv_params, start_date, end_date)
     results = tuner.run_study(storage="mysql")

@@ -1,7 +1,12 @@
 
 from numpy.core.fromnumeric import argmax
-from src.model.runner import train_model, test_model
 from src.preprocessing.data import format_for_env
+
+from src.environment.env_custom import CustomTradingEnv
+from src.model.models import DRLAgent
+from src.evaluate.backtest import BackTest
+from src.preprocessing.data import build_features
+from src.model.runner import test_model
 
 """
 Class to perform time series validation. 
@@ -38,22 +43,25 @@ class TimeSeriesValidation:
 
     def run(self, df, env_params, model_name, model_params, log_tensorboard=None):
         total_results = []
-        models = []
-        
+        agent = DRLAgent(CustomTradingEnv(df=df, **env_params))
+        model = agent.get_model(model_name=model_name, model_kwargs=model_params, tensorboard_log=log_tensorboard)        
         df = format_for_env(df)
+        
         for n in range(self.num_splits):
             tb_name_train = f"split_{n}_train"
-            train, test = self.next_part(df, n)
-            model = train_model(train, env_params, model_name, model_params, self.total_timesteps_model, log_tensorboard, tb_name=tb_name_train)
-            print("Metrics testing")
-            results = test_model(test, env_params, model, with_graphs=self.with_graphs)
+            df_train, df_test = self.next_part(df, n)            
+            #Train
+            print(f"Train from [{df_train['date'].iloc[0]}] to [{df_train['date'].iloc[-1]}]")
+            env_train = CustomTradingEnv(df=df_train, **env_params)
+            agent.env = env_train
+            model = agent.train_model(model=model, tb_log_name=tb_name_train, total_timesteps=self.total_timesteps_model)
+            #Test
+            results = test_model(df_test, env_params, model, with_graphs=self.with_graphs)
             total_results.append(results)
-            models.append(model)
 
         summary = {}
         for metric in results.keys():
             summary[metric] = sum(d[metric] for d in total_results) / len(total_results)
-        best_model = models[argmax([d["sharpe"] for d in total_results])]
 
-        return summary, best_model
+        return summary, model
 
