@@ -112,7 +112,12 @@ BEST_PPO_PARAMS = {
     "gae_lambda": 0.969964,
     "seed":8,
 }
-BEST_DQN_PARAMS = {}
+BEST_DQN_PARAMS = {
+    "batch_size": 100,
+    "gamma": 0.965,
+    "learning_rate": 0.002,
+    "tau": 0.014,
+}
 
 BEST_MODEL_NAME = "ppo"
 BEST_MODEL_PARAMS = {}

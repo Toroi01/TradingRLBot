@@ -27,12 +27,11 @@ if __name__ == '__main__':
         "main_tickers": config.MULTIPLE_TICKER_8,
         "all_tickers": config.MULTIPLE_TICKER_8,
         "reward_type": "percentage",
-        "discrete_actionspace": True,
         "comission_value": 0.01
     }
 
-    model_name = "dqn"
-    model_params = config.DQN_PARAMS
+    model_name = "ppo"
+    model_params = config.BEST_PPO_PARAMS
     total_timesteps_model = 100000
 
     logging.info("Doing time series validation")

@@ -16,7 +16,6 @@ class PPOTune(Tune):
         clip_range = trial.suggest_categorical("clip_range", [0.1, 0.2, 0.3])
         gamma = trial.suggest_categorical("gamma", [0.99, 0.995, 0.999, 0.9999])
         gae_lambda = trial.suggest_float("gae_lambda", 0.9, 0.99999)
-        vf_coef = trial.suggest_uniform("vf_coef", 0.5, 0.99)    
         
         PPO_PARAMS = {
             "n_steps": n_steps,
