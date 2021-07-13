@@ -29,3 +29,4 @@ stockstats==0.3.2
 optuna==2.8.0
 mlflow==1.18.0
 tensorboard==2.5.0
+notebook==6.4.0
