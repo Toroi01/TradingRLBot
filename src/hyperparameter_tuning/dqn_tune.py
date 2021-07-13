@@ -32,7 +32,18 @@ class DQNTune(Tune):
         print(DQN_PARAMS)
 
         tsv = TimeSeriesValidation(**self.tsv_params)
-        metrics, model = tsv.run(self.data, self.env_params, self.model_name, DQN_PARAMS, log_tensorboard=self.log_tensorboard)
+        nan_encountered = False
+        try:
+            metrics, model  = tsv.run(self.data, self.env_params, self.model_name, DQN_PARAMS, log_tensorboard=self.log_tensorboard)
+        except AssertionError as e:
+            print("Bad hyperparameter configuration")
+            print(e)
+            nan_encountered = True
+        #Tell the optimizer that the trial failed
+        if nan_encountered:
+            # Sometimes, random hyperparams can generate NaN
+            return float("nan")
+            
         print(f"Metrics: {metrics}")
         self.save("hyperparameters", trial_number=trial.number, content=DQN_PARAMS)
         self.save("metrics", trial_number=trial.number, content=metrics)
