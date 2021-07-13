@@ -201,6 +201,8 @@ class CustomTradingEnv(gym.Env):
 
     def is_done(self, hourly_data):
         percent_of_initial_value = self.portfolio.get_total_portfolio_value(hourly_data) / self.portfolio.initial_cash
+        if(percent_of_initial_value < 0.1):
+            print("RUIN")
         # Check if it's the last iteration or ran out of budget (10%)
         return (self._hour_counter == max(self.df.index) - 1) or (self.is_training and percent_of_initial_value < 0.1)
 

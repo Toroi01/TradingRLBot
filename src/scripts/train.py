@@ -9,8 +9,8 @@ sys.path.append(dirname(dirname(dirname(abspath(__file__)))))
 logging.basicConfig(level=logging.INFO)
 
 if __name__ == '__main__':
-    start_date = "2021-01-01"
-    end_date = "2021-04-01"
+    start_date = config.START_TRAIN_DATE
+    end_date = config.END_TRAIN_DATE
 
     logging.info("Loading dataset")
 
@@ -29,10 +29,12 @@ if __name__ == '__main__':
         "comission_value": 0.01
     }
 
-    model_name = "ppo"
-    model_params = config.PPO_PARAMS
-    total_timesteps_model = 100000
+    model_name =  config.BEST_MODEL_NAME
+    model_params = config.BEST_MODEL_PARAMS
+
+    total_timesteps_model = 1e5
 
     logging.info("Training model")
 
-    train_model(train, env_params, model_name, model_params, total_timesteps_model)
+    model = train_model(train, env_params, model_name, model_params, total_timesteps_model, log_tensorboard=config.TRAINED_MODEL_DIR, tb_name="best_model")
+    model.save(config.TRAINED_MODEL_DIR+"/best_model.pkl")

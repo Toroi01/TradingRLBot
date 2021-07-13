@@ -16,15 +16,19 @@ START_DATE = "2020-01-01"
 START_TEST_DATE = "2021-01-01"
 END_DATE = "2021-07-01"
 
-
 HT_START_TRAIN_DATE = "2021-01-01"
 HT_END_TRAIN_DATE = "2021-06-01"
 
 HT_START_TEST_DATE = "2021-06-01"
 HT_END_TEST_DATE = "2021-07-01"
 
-PREPROCESSED_DF_NAME = "preprocess_df.pkl"
+START_TRAIN_DATE = "2020-01-01"
+END_TRAIN_DATE = "2021-06-01"
 
+START_TEST_DATE = "2021-06-01"
+END_TEST_DATE = "2021-07-01"
+
+PREPROCESSED_DF_NAME = "preprocess_df.pkl"
 
 
 # This indicators describe what is appening during the day (up to 20 hours before)
@@ -90,3 +94,32 @@ SAC_PARAMS = {
     "ent_coef": "auto_0.1",
 }
 
+BEST_DDPG_PARAMS = {
+    "gamma": 0.9752730589768152,
+    "tau": 0.012649506082360071,
+    "learning_rate": 0.00297393374407611,
+    "batch_size": 128,
+    "buffer_size": 10000,
+    "seed":8,
+}
+BEST_PPO_PARAMS = {
+    "n_steps": 1000,
+    "ent_coef": 0.0108486,
+    "learning_rate": 0.00637956,
+    "batch_size": 20,
+    "n_epochs": 3,
+    "gamma": 0.995,
+    "gae_lambda": 0.969964,
+    "seed":8,
+}
+BEST_DQN_PARAMS = {}
+
+BEST_MODEL_NAME = "ppo"
+BEST_MODEL_PARAMS = {}
+
+if BEST_MODEL_NAME == "ddpg":
+    BEST_MODEL_PARAMS = BEST_DDPG_PARAMS
+if BEST_MODEL_NAME == "ppo":
+    BEST_MODEL_PARAMS = BEST_PPO_PARAMS
+if BEST_MODEL_NAME == "dqn":
+    BEST_MODEL_PARAMS = BEST_DQN_PARAMS

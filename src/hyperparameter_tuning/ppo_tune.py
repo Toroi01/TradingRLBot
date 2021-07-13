@@ -7,9 +7,9 @@ class PPOTune(Tune):
         super().__init__("ppo", n_trials, env_params, tsv_params, start_date, end_date)
 
     def sample_ppo_params(self, trial):
-        n_steps = trial.suggest_categorical("n_steps", [50, 100, 500, 1000, 2000, 3000, 10000, 20000])
+        n_steps = trial.suggest_categorical("n_steps", [100, 500, 1000, 2000, 3000, 10000, 20000])
         ent_coef = trial.suggest_loguniform("ent_coef", 0.01, 0.1)
-        learning_rate = trial.suggest_loguniform("learning_rate", 5e-4, 1e-2)
+        learning_rate = trial.suggest_loguniform("learning_rate", 1e-3, 1e-2)
 
         batch_size = trial.suggest_categorical("batch_size", [2, 5, 10, 20, 50, 100]) 
         n_epochs = trial.suggest_categorical("n_epochs", [3, 5, 10])
