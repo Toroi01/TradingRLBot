@@ -13,7 +13,7 @@ class PPOTune(Tune):
 
         batch_size = trial.suggest_categorical("batch_size", [2, 5, 10, 20, 50, 100]) 
         n_epochs = trial.suggest_categorical("n_epochs", [3, 5, 10])
-        #clip_range = trial.suggest_categorical("clip_range", [0.1, 0.2, 0.3])
+        clip_range = trial.suggest_categorical("clip_range", [0.1, 0.2, 0.3])
         #target_kl = trial.suggest_float("target_kl", 0.003, 0.03)
         gamma = trial.suggest_categorical("gamma", [0.99, 0.995, 0.999, 0.9999])
         gae_lambda = trial.suggest_float("gae_lambda", 0.9, 0.99999)
@@ -33,7 +33,7 @@ class PPOTune(Tune):
             "learning_rate": learning_rate,
             "batch_size": batch_size,
             "n_epochs": n_epochs,
-            #"clip_range": clip_range,
+            "clip_range": clip_range,
             #"target_kl": target_kl,
             "gamma": gamma,
             "gae_lambda": gae_lambda,

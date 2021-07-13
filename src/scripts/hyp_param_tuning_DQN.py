@@ -24,14 +24,14 @@ if __name__ == '__main__':
     model_name = "dqn"
 
     tsv_params = {
-        "num_splits": 1,
-        "total_timesteps_model": 1e5,
+        "num_splits": 2,
+        "total_timesteps_model": 1,
         "with_graphs": False
     }
 
     n_trials = 3
 
     tuner = TuneBuilder.load(model_name, n_trials, env_params, tsv_params, start_date, end_date)
-    results = tuner.run_study(storage="mysql")
+    results = tuner.run_study()
 
     logging.info(f"Results: {results}")
