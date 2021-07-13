@@ -7,20 +7,20 @@ class DDPGTune(Tune):
         super().__init__("ddpg", n_trials, env_params, tsv_params, start_date, end_date)
 
     def objective(self, trial):
-        gamma = trial.suggest_loguniform("gamma", 0.1, 0.99)
-        tau = trial.suggest_uniform("tau", 0.01, 0.5)
-        #exploration_fraction = trial.suggest_loguniform("exploration_fraction", 0.001, 0.1)
-        learning_rate = trial.suggest_loguniform("learning_rate", 0.0005, 0.01)
-        batch_size = trial.suggest_discrete_uniform("batch_size", 32, 128, 1)
-        learning_starts = trial.suggest_discrete_uniform("learning_starts", 10, 10000, 2)
+        gamma = trial.suggest_loguniform("gamma", 0.9, 0.99)
+        tau = trial.suggest_uniform("tau", 0.001, 0.1)
+        learning_rate = trial.suggest_loguniform("learning_rate", 0.001, 0.01)
+        batch_size = trial.suggest_categorical("batch_size", [32, 128, 1])
+        buffer_size= trial.suggest_categorical("buffer_size", [100000, 1000000, 10000] )
 
         DDPG_PARAMS = {
             "gamma": gamma,
             "tau": tau,
-            #"exploration_fraction": exploration_fraction,
-            "learning_starts": learning_starts,
             "learning_rate": learning_rate,
-            "batch_size": int(batch_size)
+            "batch_size": int(batch_size),
+            "seed":8,
+            "buffer_size": int(buffer_size)
+
         }
 
         tsv = TimeSeriesValidation(**self.tsv_params)
