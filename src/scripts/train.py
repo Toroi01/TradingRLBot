@@ -35,9 +35,9 @@ if __name__ == '__main__':
     model_name =  config.BEST_MODEL_NAME
     model_params = config.BEST_MODEL_PARAMS
 
-    total_timesteps_model = 1
+    total_timesteps_model = 2e5
 
     logging.info("Training model")
 
-    model = train_model(train, env_params, model_name, model_params, total_timesteps_model, log_tensorboard=config.TRAINED_MODEL_DIR, tb_name="best_model")
+    model = train_model(train, env_params, model_name, model_params, total_timesteps_model, log_tensorboard=config.TRAINED_MODEL_DIR, tb_name=f"{config.BEST_MODEL_NAME}_best_model")
     model.save(config.TRAINED_MODEL_DIR+f"/best_model_{config.BEST_MODEL_NAME}.pkl")
