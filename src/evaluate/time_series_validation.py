@@ -38,7 +38,6 @@ class TimeSeriesValidation:
 
     def run(self, df, env_params, model_name, model_params, log_tensorboard=None):
         total_results = []
-        models = []
         
         df = format_for_env(df)
         for n in range(self.num_splits):
@@ -48,12 +47,10 @@ class TimeSeriesValidation:
             print("Metrics testing")
             results = test_model(test, env_params, model, with_graphs=self.with_graphs)
             total_results.append(results)
-            models.append(model)
 
         summary = {}
         for metric in results.keys():
             summary[metric] = sum(d[metric] for d in total_results) / len(total_results)
-        best_model = models[argmax([d["sharpe"] for d in total_results])]
 
-        return summary, best_model
+        return summary, model
 
