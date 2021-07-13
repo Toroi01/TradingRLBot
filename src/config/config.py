@@ -119,7 +119,7 @@ BEST_DQN_PARAMS = {
     "tau": 0.014,
 }
 
-BEST_MODEL_NAME = "ppo"
+BEST_MODEL_NAME = "dqn"
 BEST_MODEL_PARAMS = {}
 
 if BEST_MODEL_NAME == "ddpg":

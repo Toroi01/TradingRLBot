@@ -19,6 +19,8 @@ if __name__ == '__main__':
 
     features = data.build_features(df)
 
+
+    discrete_actionspace = True if config.BEST_MODEL_NAME == "dqn" else False
     env_params = {
         "initial_amount": 10000,
         "features": features,
@@ -26,15 +28,16 @@ if __name__ == '__main__':
         "main_tickers": config.MULTIPLE_TICKER_8,
         "all_tickers": config.MULTIPLE_TICKER_8,
         "reward_type": "percentage",
-        "comission_value": 0.01
+        "comission_value": 0.01,
+        "discrete_actionspace": discrete_actionspace,
     }
 
     model_name =  config.BEST_MODEL_NAME
     model_params = config.BEST_MODEL_PARAMS
 
-    total_timesteps_model = 1e5
+    total_timesteps_model = 1
 
     logging.info("Training model")
 
     model = train_model(train, env_params, model_name, model_params, total_timesteps_model, log_tensorboard=config.TRAINED_MODEL_DIR, tb_name="best_model")
-    model.save(config.TRAINED_MODEL_DIR+"/best_model.pkl")
+    model.save(config.TRAINED_MODEL_DIR+f"/best_model_{config.BEST_MODEL_NAME}.pkl")

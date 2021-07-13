@@ -21,6 +21,7 @@ if __name__ == '__main__':
 
     features = data.build_features(df)
 
+    discrete_actionspace = True if config.BEST_MODEL_NAME == "dqn" else False
     env_params = {
         "initial_amount": 10000,
         "features": features,
@@ -28,18 +29,19 @@ if __name__ == '__main__':
         "main_tickers": config.MULTIPLE_TICKER_8,
         "all_tickers": config.MULTIPLE_TICKER_8,
         "reward_type": "percentage",
-        "comission_value": 0.01
+        "comission_value": 0.01,
+        "discrete_actionspace": discrete_actionspace,
     }
 
     env_test = CustomTradingEnv(df=test, **env_params)
 
-    model_name = "ddpg"
-    model_params = config.BEST_DDPG_PARAMS
+    model_name = config.BEST_MODEL_NAME
+    model_params = config.BEST_MODEL_PARAMS
 
     logging.info("Loading the best model")
     agent = DRLAgent(env=env_test)
     model = agent.get_model(model_name=model_name, model_kwargs=model_params)
-    model = model.load(config.TRAINED_MODEL_DIR+"/best_model.pkl")
+    model = model.load(config.TRAINED_MODEL_DIR+f"/best_model_{config.BEST_MODEL_NAME}.pkl")
 
     logging.info("Testing the best model")
     results = test_model(test, env_params, model, with_graphs=True)
