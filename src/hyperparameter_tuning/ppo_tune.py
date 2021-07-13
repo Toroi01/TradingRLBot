@@ -14,18 +14,9 @@ class PPOTune(Tune):
         batch_size = trial.suggest_categorical("batch_size", [2, 5, 10, 20, 50, 100]) 
         n_epochs = trial.suggest_categorical("n_epochs", [3, 5, 10])
         clip_range = trial.suggest_categorical("clip_range", [0.1, 0.2, 0.3])
-        #target_kl = trial.suggest_float("target_kl", 0.003, 0.03)
         gamma = trial.suggest_categorical("gamma", [0.99, 0.995, 0.999, 0.9999])
         gae_lambda = trial.suggest_float("gae_lambda", 0.9, 0.99999)
-        vf_coef = trial.suggest_uniform("vf_coef", 0.5, 0.99)
-
-        # ortho_init = trial.suggest_categorical("ortho_init", [False, True])
-        # net_arch = trial.suggest_categorical("net_arch", ["tiny", "small"])
-        # activation_fn = trial.suggest_categorical("activation_fn", ["tanh", "relu"])
-        # net_arch = [
-        #     {"pi": [256,128], "vf": [256,128]} if net_arch == "tiny" else {"pi": [512, 64], "vf": [512, 64]}
-        # ]
-        # activation_fn = {"tanh": nn.Tanh, "relu": nn.ReLU}[activation_fn]       
+        vf_coef = trial.suggest_uniform("vf_coef", 0.5, 0.99)    
         
         PPO_PARAMS = {
             "n_steps": n_steps,
@@ -34,15 +25,8 @@ class PPOTune(Tune):
             "batch_size": batch_size,
             "n_epochs": n_epochs,
             "clip_range": clip_range,
-            #"target_kl": target_kl,
             "gamma": gamma,
             "gae_lambda": gae_lambda,
-            # "vf_coef": vf_coef,
-            # "policy_kwargs": {
-            #     "net_arch": net_arch,
-            #     "activation_fn": activation_fn,
-            #     "ortho_init": ortho_init,
-            # },
         }
 
         return PPO_PARAMS
