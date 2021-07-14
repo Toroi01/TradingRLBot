@@ -35,7 +35,6 @@
   * [Conclusions](#conclusions)
 - [How to run the code](#how-to-run-the-code)
   * [Set up the Conda environment](#set-up-the-conda-environment)
-  * [How to run the jupyter notebook](#how-to-run-the-jupyter-notebook)
   * [How to run the hyperparameter tuning](#how-to-run-the-hyperparameter-tuning)
   * [How to visualize the results in mlflow](#how-to-visualize-the-results-in-mlflow)
   * [How to visualize the results in tensorboard](#how-to-visualize-the-results-in-tensorboard)
@@ -292,14 +291,6 @@ Analyzing the previous results we obtained the following conclusions:
 3. Open a terminal located in the root of the repo and type `conda create -n TradingRLBot python=3.9` to create the environment.
 4. Activate the environment typing `conda activate TradingRLBot`
 5. Install the requirements typing `pip install -r requirements.txt`
-
-## How to run the jupyter notebook
-1.  Open a terminal and type `conda activate TradingRLBot`
-2.  Then type `conda install -c anaconda ipykernel`
-3.  Then type `python -m ipykernel install --user --name=TradingRLBot`
-4.  Open a terminal located in the root of the repo and type `jupyter notebook`
-5.  Enter in /notebooks and click main.ipynb
-6.  Change the kernel to TradingRLBot
 
 ## How to run the hyperparameter tuning
 If you want to test different hyperparameters for the model **PPO**. These are the steps:
