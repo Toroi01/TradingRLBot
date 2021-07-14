@@ -39,6 +39,7 @@
   * [How to run the hyperparameter tuning](#how-to-run-the-hyperparameter-tuning)
   * [How to visualize the results in mlflow](#how-to-visualize-the-results-in-mlflow)
   * [How to visualize the results in tensorboard](#how-to-visualize-the-results-in-tensorboard)
+- [References](#references)
 
 
 
@@ -334,3 +335,24 @@ You can also get some more in deepth information about the training in the follo
 3. Open the url that appear in the terminal.
 4. (Output) In the webpage of tensorbord you can visualize different metrics (divided in scalars and time series) for the different trials and model run.
 
+# References
+## Code
+[Stable Baselines 3](https://stable-baselines3.readthedocs.io/en/master/)
+
+[Optuna tuner](https://optuna.org/)
+
+[FinRL Library](http://finrl.org/)
+
+[OpenAI](https://openai.com/)
+
+## Algorithms
+[PPO](https://arxiv.org/abs/1707.06347)
+
+[DQN](https://www.cs.toronto.edu/~vmnih/docs/dqn.pdf)
+
+[DDPG](https://arxiv.org/abs/1509.02971)
+
+## Finance
+[Investopedia](https://www.investopedia.com/)
+
+[Binance](https://www.binance.com/es)
