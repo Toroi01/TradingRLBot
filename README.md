@@ -1,5 +1,47 @@
 # TradingRLBot
 
+# Table of contents
+- [TradingRLBot](#tradingrlbot)
+- [Table of contents](#table-of-contents)
+- [Introduction and motivation](#introduction-and-motivation)
+- [Dataset](#dataset)
+  * [Data](#data)
+  * [Preprocessing and feature engineering](#preprocessing-and-feature-engineering)
+- [Environment](#environment)
+  * [Buy and Sell](#buy-and-sell)
+    + [Action mapping](#action-mapping)
+  * [Updating the Portfolio](#updating-the-portfolio)
+  * [Updating the state](#updating-the-state)
+  * [Computing the reward](#computing-the-reward)
+- [Models](#models)
+  * [DQN](#dqn)
+  * [DDPG](#ddpg)
+  * [PPO](#ppo)
+- [Evaluation](#evaluation)
+  * [Metrics](#metrics)
+  * [Training and Testing](#training-and-testing)
+  * [Time series validation](#time-series-validation)
+- [Hyperparameter tuning](#hyperparameter-tuning)
+- [Experiments](#experiments)
+  * [Hypothesis](#hypothesis)
+  * [Experiment setup](#experiment-setup)
+  * [Results](#results)
+    + [Best models obtained using Time Series Validation](#best-models-obtained-using-time-series-validation)
+      - [From 2020-02-01 to 2021-04-01](#from-2020-02-01-to-2021-04-01)
+    + [Testing results - Period 1](#testing-results---period-1)
+    + [Testing results - Period 2](#testing-results---period-2)
+    + [Allocations along time - Period 2](#allocations-along-time---period-2)
+    + [Transactons statistics - Period 2](#transactons-statistics---period-2)
+  * [Conclusions](#conclusions)
+- [How to run the code](#how-to-run-the-code)
+  * [Set up the Conda environment](#set-up-the-conda-environment)
+  * [How to run the jupyter notebook](#how-to-run-the-jupyter-notebook)
+  * [How to run the hyperparameter tuning](#how-to-run-the-hyperparameter-tuning)
+  * [How to visualize the results in mlflow](#how-to-visualize-the-results-in-mlflow)
+  * [How to visualize the results in tensorboard](#how-to-visualize-the-results-in-tensorboard)
+
+
+
 # Introduction and motivation
 2021 was a crazy year for Bitcoin and the cryptocurrency world in general. Bitcoin reached its all-time high of 64'000 USD and a lot of new exciting projects related to blockchain were developed. Several people start using these coins and trade them, attracted by the incredible rise in price. We decided then to test if the powerful neural networks could help us trading these coins. 
 
@@ -38,7 +80,7 @@ Our agents are trained in an environment developled by ourselves which emulates 
 
 
 
-## Buy & Sell
+## Buy and Sell
 
 The output of the agent is mapped to the environment actions that decide whether to **Buy**, **Sell** or **Hold** stock.
 
@@ -113,13 +155,13 @@ The metrics used to evaluate the strategy of the agents are commonly used in the
 * **Sortino ratio**: Almost identical to sharpe, but in this case only the negative volatily is penalizing the final value.[(More)](https://www.investopedia.com/terms/s/sortinoratio.asp#:~:text=What%20Is%20the%20Sortino%20Ratio,standard%20deviation%20of%20portfolio%20returns.)
 * **Max drawdown**: Maximum observed loss from a peak to a trough of a portfolio, before a new peak is attained.[(More)](https://www.investopedia.com/terms/m/maximum-drawdown-mdd.asp)
 
-## Training & Testing
+## Training and Testing
 
 Testing steps evaluate the performance of a model trained with data from a previous period. It's important not to test the model with data prior to the training set, as it would result in data leaking. 
 
 When tuning models, tests are not recommended since the results of different experiments mught be overfitted to the test set.
 
-## Time series validation (TSV)
+## Time series validation
 
 In a TSV, a number N of training-testing sets are ran and their results are averaged. This approach is far more robust than a simple testing and allows obtaining better results when tuning models.
 
