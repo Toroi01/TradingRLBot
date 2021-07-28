@@ -1,8 +1,7 @@
+
 # TradingRLBot
 
 # Table of contents
-- [TradingRLBot](#tradingrlbot)
-- [Table of contents](#table-of-contents)
 - [Introduction and motivation](#introduction-and-motivation)
 - [Dataset](#dataset)
   * [Data](#data)
@@ -35,10 +34,14 @@
   * [Conclusions](#conclusions)
 - [How to run the code](#how-to-run-the-code)
   * [Set up the Conda environment](#set-up-the-conda-environment)
+  * [Train and Test the models](#train-and-test-the-models)
   * [How to run the hyperparameter tuning](#how-to-run-the-hyperparameter-tuning)
   * [How to visualize the results in mlflow](#how-to-visualize-the-results-in-mlflow)
   * [How to visualize the results in tensorboard](#how-to-visualize-the-results-in-tensorboard)
 - [References](#references)
+  * [Code](#code)
+  * [Algorithms](#algorithms)
+  * [Finance](#finance)
 
 
 
@@ -291,6 +294,12 @@ Analyzing the previous results we obtained the following conclusions:
 3. Open a terminal located in the root of the repo and type `conda create -n TradingRLBot python=3.9` to create the environment.
 4. Activate the environment typing `conda activate TradingRLBot`
 5. Install the requirements typing `pip install -r requirements.txt`
+
+## Train and Test the models
+
+ 1. Choose the desired model changing the variable BEST_MODEL_NAME in `src/config/config.py`
+ 2. If you want to train the model execute `src/scripts/train.py`
+ 3. If you want to test the model execute `src/scripts/test.py`
 
 ## How to run the hyperparameter tuning
 If you want to test different hyperparameters for the model **PPO**. These are the steps:
